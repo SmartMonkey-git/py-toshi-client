@@ -1,6 +1,5 @@
 FROM rust:1.67
 
-# RUN apk update && apk upgrade && apk add git
 RUN git clone https://github.com/toshi-search/Toshi.git
 
 COPY ./config.toml ./Toshi/config/config.toml
