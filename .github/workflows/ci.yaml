@@ -11,6 +11,7 @@ permissions:
 
 env:
     PYTEST_ADDOPTS: "--color=yes"
+
 jobs:
   test:
     name: Test
@@ -29,8 +30,7 @@ jobs:
     - name: Test with pytest
       id: tests
       run: |
-        bash ./scripts/download-test-assets.sh
-        pytest --disable-warnings ./defibot
+        pytest --disable-warnings ./py-toshi-client
 
   formatting:
     name: Formatting
@@ -47,7 +47,7 @@ jobs:
 
     -   name: Black Formatting
         run: |
-            black ./defibot --check --skip-magic-trailing-comma
+            black ./py-toshi-client --check --skip-magic-trailing-comma
 
     -   name: Documentation Check
         run: |
