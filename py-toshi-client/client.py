@@ -13,7 +13,7 @@ class ToshiClient:
 
         if resp.status_code != 201:
             raise IndexCreationError(
-                f"Creating index failed with status code: {resp.status_code}.from "
+                f"Creating index failed with status code: {resp.status_code}."
                 f"Reason: {resp.json()['message']}"
             )
 
