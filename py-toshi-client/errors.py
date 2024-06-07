@@ -1,0 +1,2 @@
+class IndexCreationError(Exception):
+    pass
