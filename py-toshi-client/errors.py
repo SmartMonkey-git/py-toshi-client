@@ -1,2 +1,2 @@
-class IndexCreationError(Exception):
+class IndexException(Exception):
     pass

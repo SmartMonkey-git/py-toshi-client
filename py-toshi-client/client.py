@@ -2,7 +2,7 @@ from typing import Optional
 
 import requests
 
-from errors import IndexCreationError
+from errors import IndexException
 from schemas.index import Index
 from schemas.index_summary import IndexSummary
 
@@ -16,7 +16,7 @@ class ToshiClient:
         resp = requests.put(create_index_url, json=create_index_payload.to_json())
 
         if resp.status_code != 201:
-            raise IndexCreationError(
+            raise IndexException(
                 f"Creating index failed with status code: {resp.status_code}."
                 f"Reason: {resp.json()['message']}"
             )
@@ -26,6 +26,12 @@ class ToshiClient:
     ) -> IndexSummary:
         index_summary_url = f"{self._url}/{name}/_summary?include_sizes={include_size}"
         resp = requests.get(index_summary_url)
+
+        if resp.status_code != 200:
+            raise IndexException(
+                f"Could not get index summary. Status code: {resp.status_code}."
+                f"Reason: {resp.json()['message']}"
+            )
 
         return IndexSummary.from_json(resp.json()["summaries"])
 
