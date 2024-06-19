@@ -5,7 +5,6 @@ from index_builder import IndexBuilder
 from schemas.index import Index
 
 
-
 @dataclass
 class IndexSummary:
     index_settings: dict

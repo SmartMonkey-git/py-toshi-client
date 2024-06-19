@@ -3,51 +3,43 @@ import requests
 
 from client import ToshiClient
 from errors import IndexCreationError
+from tests.test_index_builder import IndexBuilder
 
 
 @pytest.fixture
 def lyrics_index():
-    return [
-        {
-            "name": "lyrics",
-            "type": "text",
-            "options": {
-                "indexing": {"record": "position", "tokenizer": "default"},
-                "stored": True,
-            },
-        },
-        {"name": "year", "type": "i64", "options": {"indexed": True, "stored": True}},
-        {"name": "idx", "type": "u64", "options": {"indexed": True, "stored": True}},
-        {
-            "name": "artist",
-            "type": "text",
-            "options": {
-                "indexing": {"record": "position", "tokenizer": "default"},
-                "stored": True,
-            },
-        },
-        {
-            "name": "genre",
-            "type": "text",
-            "options": {
-                "indexing": {"record": "position", "tokenizer": "default"},
-                "stored": True,
-            },
-        },
-        {
-            "name": "song",
-            "type": "text",
-            "options": {
-                "indexing": {"record": "position", "tokenizer": "default"},
-                "stored": True,
-            },
-        },
-    ]
+    builder = IndexBuilder()
+
+    builder.add_text_field(
+        name="lyrics",
+        stored=True,
+        indexing={"record": "position", "tokenizer": "default"},
+    )
+    builder.add_i64_field(name="year", stored=True, indexed=True)
+    builder.add_u64_field(name="idx", stored=True, indexed=True)
+    builder.add_text_field(
+        name="artist",
+        stored=True,
+        indexing={"record": "position", "tokenizer": "default"},
+    )
+    builder.add_text_field(
+        name="genre",
+        stored=True,
+        indexing={"record": "position", "tokenizer": "default"},
+    )
+    builder.add_text_field(
+        name="song",
+        stored=True,
+        indexing={"record": "position", "tokenizer": "default"},
+    )
+
+    return builder.build()
 
 
 @pytest.mark.integration()
 def test_create_index(lyrics_index, toshi_container):
     index_name = "lyrics"
+    unknown_index_response = {"message": "Unknown Index: 'lyrics' does not exist"}
 
     get_schema_summary_url = (
         f"{toshi_container}/{index_name}/_summary?include_sizes=true"
@@ -55,7 +47,7 @@ def test_create_index(lyrics_index, toshi_container):
     res = requests.get(
         get_schema_summary_url, headers={"Content-Type": "application/json"}
     )
-    assert res.json() == {"message": "Unknown Index: 'lyrics' does not exist"}
+    assert res.json() == unknown_index_response
 
     client = ToshiClient(toshi_container)
     client.create_index(name=index_name, create_index_payload=lyrics_index)
@@ -66,7 +58,13 @@ def test_create_index(lyrics_index, toshi_container):
     res = requests.get(
         get_schema_summary_url, headers={"Content-Type": "application/json"}
     )
-    assert res.json() != {"message": "Unknown Index: 'lyrics' does not exist"}
+    assert res.json() != unknown_index_response
 
     with pytest.raises(IndexCreationError):
         client.create_index(name=index_name, create_index_payload=lyrics_index)
+
+
+@pytest.mark.integration()
+def test_get_index_summary(toshi_container):
+    client = ToshiClient(toshi_container)
+    res = client.get_index_summary(name="lyrics")
