@@ -6,11 +6,20 @@ import pytest
 
 @pytest.fixture(scope="session")
 def toshi_container():
+    container_name = "toshi-test"
     client = docker.from_env()
     port = 8080
 
+    # Check if container is running
+    running_containers = client.containers.list()
+    for container in running_containers:
+        # If it is running delete it for a clean test env
+        if container.name == container_name:
+            container.stop()
+            container.remove()
+
     container = client.containers.run(
-        "toshi", name="toshi-test", ports={port: 8080}, detach=True
+        image="toshi", name=container_name, ports={port: port}, detach=True
     )
     time.sleep(0.5)
 
