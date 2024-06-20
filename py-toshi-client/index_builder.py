@@ -13,9 +13,6 @@ class IndexBuilder:
         """TODO"""
         return Index(self._raw_index.copy())
 
-    def clear_build(self):
-        self._raw_index = {}
-
     def add_text_field(
         self,
         name: str,
