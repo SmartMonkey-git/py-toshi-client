@@ -2,8 +2,9 @@ import pytest
 import requests
 
 from client import ToshiClient
-from errors import IndexCreationError
-from tests.test_index_builder import IndexBuilder
+from errors import IndexException
+
+from index_builder import IndexBuilder
 
 
 @pytest.fixture
@@ -60,7 +61,7 @@ def test_create_index(lyrics_index, toshi_container):
     )
     assert res.json() != unknown_index_response
 
-    with pytest.raises(IndexCreationError):
+    with pytest.raises(IndexException):
         client.create_index(name=index_name, create_index_payload=lyrics_index)
 
 

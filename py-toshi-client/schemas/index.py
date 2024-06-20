@@ -6,7 +6,7 @@ from schemas.field_options import Options
 
 
 @dataclass
-class Field:
+class IndexField:
     name: str
     type: IndexTypes
     options: Options
@@ -14,16 +14,16 @@ class Field:
 
 @dataclass
 class Index:
-    configuration: list[Field]
+    fields: list[IndexField]
 
     def to_json(self) -> list[dict]:
-        return [dataclasses.asdict(i) for i in self.configuration]
+        return [dataclasses.asdict(i) for i in self.fields]
 
     @staticmethod
     def from_json(data: dict) -> "Index":
         config = []
         for schema in data:
             options = Options(**schema.pop("options"))
-            config.append(Field(options=options, **schema))
+            config.append(IndexField(options=options, **schema))
 
         return Index(config)

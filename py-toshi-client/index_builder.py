@@ -2,7 +2,7 @@ from typing import Optional
 
 from enums import IndexTypes
 from schemas.field_options import NumericOptions, TextOptions
-from schemas.index import Field, Index
+from schemas.index import IndexField, Index
 
 
 class IndexBuilder:
@@ -20,7 +20,7 @@ class IndexBuilder:
         self,
         name: str,
         stored: bool,
-        indexed: Optional[bool] = None,
+        indexed: Optional[bool] = False,
         indexing: Optional[dict] = None,
         coerce: Optional[bool] = False,
     ):
@@ -28,7 +28,7 @@ class IndexBuilder:
         option = TextOptions(
             stored=stored, indexed=indexed, indexing=indexing, coerce=coerce
         )
-        filed = Field(name=name, type=IndexTypes.TEXT, options=option)
+        filed = IndexField(name=name, type=IndexTypes.TEXT, options=option)
         self._raw_index.append(filed)
 
     def add_u64_field(
@@ -110,5 +110,5 @@ class IndexBuilder:
             fieldnorms=fieldnorms,
             coerce=coerce,
         )
-        filed = Field(name=name, type=type, options=option)
+        filed = IndexField(name=name, type=type, options=option)
         self._raw_index.append(filed)
