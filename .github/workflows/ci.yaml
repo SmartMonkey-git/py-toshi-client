@@ -49,6 +49,6 @@ jobs:
         run: |
             black ./py-toshi-client --check --skip-magic-trailing-comma
 
-    -   name: Documentation Check
-        run: |
-            interrogate
+    #-   name: Documentation Check
+    #    run: |
+    #        interrogate

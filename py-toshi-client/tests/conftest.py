@@ -1,7 +1,10 @@
+import os
 import time
 
 import docker
 import pytest
+
+CI = bool(os.environ.get("CI"))
 
 
 @pytest.fixture(scope="session")

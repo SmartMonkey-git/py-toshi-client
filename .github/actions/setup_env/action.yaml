@@ -1,0 +1,26 @@
+name: Setup/Cache Env
+description: 'Sets up and caches a python env. Will only install dependencies if no cache was hit.'
+
+runs:
+    using: composite
+    steps:
+        -   name: Set up Python 3.11
+            uses: actions/setup-python@v4
+            with:
+                python-version: "3.11"
+
+        -   name: Cache Env
+            uses: actions/cache@v3
+            id: env-cache
+            with:
+                path: ${{ env.pythonLocation }}
+                key: ${{ env.pythonLocation }}-${{ hashFiles('./requirements/requirements.txt') }}-${{ hashFiles('./requirements/requirements_test.txt') }} }}
+
+        -   name: Install Dependencies
+            if: ${{ steps.env-cache.outputs.cache-hit != 'true' }}
+            run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements/requirements.txt
+                pip install -r requirements/requirements_test.txt
+            shell: bash
+
