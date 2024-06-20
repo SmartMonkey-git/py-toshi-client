@@ -4,6 +4,7 @@ import requests
 from client import ToshiClient
 from errors import IndexException
 from index_builder import IndexBuilder
+from schemas.document import Document
 from schemas.field_options import TextOptionIndexing
 from tests.conftest import CI
 
@@ -56,3 +57,32 @@ def test_create_index(lyrics_index, toshi_container):
 def test_get_index_summary(toshi_container):
     client = ToshiClient(toshi_container)
     res = client.get_index_summary(name="lyrics")
+
+
+def test_add_document(toshi_container):
+    class Lyrics(Document):
+        index_name: str = "lyrics"
+
+        def __init__(
+            self, lyrics: str, year: int, idx: int, artist: str, genre: str, song: str
+        ):
+            super().__init__(self.index_name)
+            self.lyrics = lyrics
+            self.year = year
+            self.idx = idx
+            self.artist = artist
+            self.genre = genre
+            self.song = song
+
+    doc = Lyrics(
+        lyrics="Here comes the sun, doo-doo-doo-doo",
+        year=1969,
+        idx=1,
+        artist="The Beatles",
+        genre="Rock",
+        song="Here Comes The Sun",
+    )
+
+    client = ToshiClient(toshi_container)
+    client.add_document(document=doc)
+    client.get_documents(index_name="lyrics")
