@@ -59,6 +59,8 @@ def test_get_index_summary(toshi_container):
     res = client.get_index_summary(name="lyrics")
 
 
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
 def test_add_document(toshi_container):
     class Lyrics(Document):
         index_name: str = "lyrics"
