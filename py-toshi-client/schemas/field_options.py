@@ -1,14 +1,13 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from enums import IndexTypes
+from enums import IndexRecordOption
 
 
 @dataclass
 class Options:
     stored: bool
     indexed: Optional[bool] = None
-    indexing: Optional[dict] = None
 
 
 @dataclass
@@ -20,8 +19,17 @@ class NumericOptions(Options):
 
 
 @dataclass
+class TextOptionIndexing:
+    record: Optional[IndexRecordOption] = IndexRecordOption.POSITION
+    fieldnorms: bool = True
+    tokenizer: Optional[str] = "default"
+
+
+@dataclass
 class TextOptions(Options):
+    indexing: Optional[TextOptionIndexing] = None
     coerce: Optional[bool] = False
+    """If true coerce values into string if they are not of type string"""
 
 
 @dataclass

@@ -31,6 +31,9 @@ class IndexSummary:
                 IndexTypes.BOOL,
             ]:
                 options = raw_field.pop("options")
+
+                # can't have type as an input without shadowing the type keyword
+                raw_field["index_type"] = raw_field.pop("type")
                 builder.add_numeric_field(**raw_field, **options)
 
         index = builder.build()

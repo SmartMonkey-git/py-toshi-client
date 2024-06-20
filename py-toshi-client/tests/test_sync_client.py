@@ -3,36 +3,20 @@ import requests
 
 from client import ToshiClient
 from errors import IndexException
-
 from index_builder import IndexBuilder
+from schemas.field_options import TextOptionIndexing
 
 
 @pytest.fixture
 def lyrics_index():
     builder = IndexBuilder()
 
-    builder.add_text_field(
-        name="lyrics",
-        stored=True,
-        indexing={"record": "position", "tokenizer": "default"},
-    )
+    builder.add_text_field(name="lyrics", stored=True, indexing=TextOptionIndexing())
     builder.add_i64_field(name="year", stored=True, indexed=True)
     builder.add_u64_field(name="idx", stored=True, indexed=True)
-    builder.add_text_field(
-        name="artist",
-        stored=True,
-        indexing={"record": "position", "tokenizer": "default"},
-    )
-    builder.add_text_field(
-        name="genre",
-        stored=True,
-        indexing={"record": "position", "tokenizer": "default"},
-    )
-    builder.add_text_field(
-        name="song",
-        stored=True,
-        indexing={"record": "position", "tokenizer": "default"},
-    )
+    builder.add_text_field(name="artist", stored=True, indexing=TextOptionIndexing())
+    builder.add_text_field(name="genre", stored=True, indexing=TextOptionIndexing())
+    builder.add_text_field(name="song", stored=True, indexing=TextOptionIndexing())
 
     return builder.build()
 

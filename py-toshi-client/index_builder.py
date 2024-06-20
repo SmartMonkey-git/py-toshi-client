@@ -1,7 +1,7 @@
 from typing import Optional
 
 from enums import IndexTypes
-from schemas.field_options import NumericOptions, TextOptions
+from schemas.field_options import NumericOptions, TextOptions, TextOptionIndexing
 from schemas.index import IndexField, Index
 
 
@@ -18,10 +18,26 @@ class IndexBuilder:
         name: str,
         stored: bool,
         indexed: Optional[bool] = False,
-        indexing: Optional[dict] = None,
+        indexing: Optional[TextOptionIndexing] = None,
         coerce: Optional[bool] = False,
     ):
-        """Adds a text field to the index"""
+        """
+        Adds a text field to the index.
+
+        Parameters
+        ----------
+        name : str
+            The name of the text field.
+        stored : bool
+            If True, the text field will be stored in the index.
+        indexed : bool, optional
+            If True, the text field will be indexed for searching. Default is False.
+        indexing : dict, optional
+            A dictionary containing indexing options for the text field. Default is None.
+        coerce : bool, optional
+            If true, coerce values into string if they are not of type string Default is False.
+        """
+
         option = TextOptions(
             stored=stored, indexed=indexed, indexing=indexing, coerce=coerce
         )
@@ -33,14 +49,13 @@ class IndexBuilder:
         name: str,
         stored: bool,
         indexed: Optional[bool] = None,
-        indexing: Optional[dict] = None,
         fast: Optional[bool] = False,
         fieldnorms: Optional[bool] = True,
         coerce: Optional[bool] = False,
     ):
         """"""
         self.add_numeric_field(
-            name, stored, IndexTypes.U64, indexed, indexing, fast, fieldnorms, coerce
+            name, stored, IndexTypes.U64, indexed, fast, fieldnorms, coerce
         )
 
     def add_i64_field(
@@ -48,14 +63,13 @@ class IndexBuilder:
         name: str,
         stored: bool,
         indexed: Optional[bool] = None,
-        indexing: Optional[dict] = None,
         fast: Optional[bool] = False,
         fieldnorms: Optional[bool] = True,
         coerce: Optional[bool] = False,
     ):
         """"""
         self.add_numeric_field(
-            name, stored, IndexTypes.I64, indexed, indexing, fast, fieldnorms, coerce
+            name, stored, IndexTypes.I64, indexed, fast, fieldnorms, coerce
         )
 
     def add_f64_filed(
@@ -63,14 +77,13 @@ class IndexBuilder:
         name: str,
         stored: bool,
         indexed: Optional[bool] = None,
-        indexing: Optional[dict] = None,
         fast: Optional[bool] = False,
         fieldnorms: Optional[bool] = True,
         coerce: Optional[bool] = False,
     ):
         """"""
         self.add_numeric_field(
-            name, stored, IndexTypes.F64, indexed, indexing, fast, fieldnorms, coerce
+            name, stored, IndexTypes.F64, indexed, fast, fieldnorms, coerce
         )
 
     def add_bool_filed(
@@ -78,14 +91,13 @@ class IndexBuilder:
         name: str,
         stored: bool,
         indexed: Optional[bool] = None,
-        indexing: Optional[dict] = None,
         fast: Optional[bool] = False,
         fieldnorms: Optional[bool] = True,
         coerce: Optional[bool] = False,
     ):
         """"""
         self.add_numeric_field(
-            name, stored, IndexTypes.BOOL, indexed, indexing, fast, fieldnorms, coerce
+            name, stored, IndexTypes.BOOL, indexed, fast, fieldnorms, coerce
         )
 
     def add_numeric_field(
@@ -94,7 +106,6 @@ class IndexBuilder:
         stored: bool,
         index_type: IndexTypes,
         indexed: Optional[bool] = None,
-        indexing: Optional[dict] = None,
         fast: Optional[bool] = False,
         fieldnorms: Optional[bool] = True,
         coerce: Optional[bool] = False,
@@ -102,10 +113,9 @@ class IndexBuilder:
         option = NumericOptions(
             stored=stored,
             indexed=indexed,
-            indexing=indexing,
             # fast=fast,
             fieldnorms=fieldnorms,
             coerce=coerce,
         )
-        filed = IndexField(name=name, type=type, options=option)
+        filed = IndexField(name=name, type=index_type, options=option)
         self._raw_index.append(filed)
