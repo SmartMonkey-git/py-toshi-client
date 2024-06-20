@@ -92,7 +92,7 @@ class IndexBuilder:
         self,
         name: str,
         stored: bool,
-        type: IndexTypes,
+        index_type: IndexTypes,
         indexed: Optional[bool] = None,
         indexing: Optional[dict] = None,
         fast: Optional[bool] = False,
