@@ -5,6 +5,7 @@ from client import ToshiClient
 from errors import IndexException
 from index_builder import IndexBuilder
 from schemas.field_options import TextOptionIndexing
+from tests.conftest import CI
 
 
 @pytest.fixture
@@ -22,6 +23,7 @@ def lyrics_index():
 
 
 @pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
 def test_create_index(lyrics_index, toshi_container):
     index_name = "lyrics"
     unknown_index_response = {"message": "Unknown Index: 'lyrics' does not exist"}
@@ -50,6 +52,7 @@ def test_create_index(lyrics_index, toshi_container):
 
 
 @pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
 def test_get_index_summary(toshi_container):
     client = ToshiClient(toshi_container)
     res = client.get_index_summary(name="lyrics")
