@@ -9,9 +9,9 @@ class IndexBuilder:
     def __init__(self):
         self._raw_index = []
 
-    def build(self) -> Index:
+    def build(self, index_name: str) -> Index:
         """TODO"""
-        return Index(self._raw_index.copy())
+        return Index(fields=self._raw_index.copy(), name=index_name)
 
     def add_text_field(
         self,

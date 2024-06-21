@@ -20,8 +20,9 @@ def test_add_text_field(index_builder: IndexBuilder):
         coerce=True,
     )
 
-    index = index_builder.build()
+    index = index_builder.build("test_index")
 
+    assert index.name == "test_index"
     assert len(index.fields) == 1
     assert index.fields[0] == IndexField(
         name="test",
@@ -40,8 +41,9 @@ def test_add_i64_field(index_builder: IndexBuilder):
         name="test", stored=True, indexed=True, fast=True, fieldnorms=False, coerce=True
     )
 
-    index = index_builder.build()
+    index = index_builder.build("test_index")
 
+    assert index.name == "test_index"
     assert len(index.fields) == 1
     assert index.fields[0] == IndexField(
         name="test",
@@ -57,8 +59,9 @@ def test_add_u64_field(index_builder: IndexBuilder):
         name="test", stored=True, indexed=True, fast=True, fieldnorms=False, coerce=True
     )
 
-    index = index_builder.build()
+    index = index_builder.build("test_index")
 
+    assert index.name == "test_index"
     assert len(index.fields) == 1
     assert index.fields[0] == IndexField(
         name="test",
@@ -74,8 +77,9 @@ def test_add_f64_field(index_builder: IndexBuilder):
         name="test", stored=True, indexed=True, fast=True, fieldnorms=False, coerce=True
     )
 
-    index = index_builder.build()
+    index = index_builder.build("test_index")
 
+    assert index.name == "test_index"
     assert len(index.fields) == 1
     assert index.fields[0] == IndexField(
         name="test",
@@ -91,8 +95,9 @@ def test_add_bool_field(index_builder: IndexBuilder):
         name="test", stored=True, indexed=True, fast=True, fieldnorms=False, coerce=True
     )
 
-    index = index_builder.build()
+    index = index_builder.build("test_index")
 
+    assert index.name == "test_index"
     assert len(index.fields) == 1
     assert index.fields[0] == IndexField(
         name="test",
@@ -117,8 +122,9 @@ def test_add_numeric_field(index_builder: IndexBuilder, field_type):
         coerce=True,
     )
 
-    index = index_builder.build()
+    index = index_builder.build("test_index")
 
+    assert index.name == "test_index"
     assert len(index.fields) == 1
     assert index.fields[0] == IndexField(
         name="test",

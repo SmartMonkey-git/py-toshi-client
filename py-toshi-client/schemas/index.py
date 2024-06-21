@@ -14,6 +14,7 @@ class IndexField:
 
 @dataclass
 class Index:
+    name: str
     fields: list[IndexField]
 
     def to_json(self) -> list[dict]:

@@ -24,17 +24,16 @@ def lyrics_index():
     builder.add_text_field(name="genre", stored=True, indexing=TextOptionIndexing())
     builder.add_text_field(name="song", stored=True, indexing=TextOptionIndexing())
 
-    return builder.build()
+    return builder.build("lyrics")
 
 
 @pytest.mark.integration()
 @pytest.mark.skipif(CI, reason="Integration Test")
 def test_create_index(lyrics_index, toshi_container):
-    index_name = "lyrics"
     unknown_index_response = {"message": "Unknown Index: 'lyrics' does not exist"}
 
     get_schema_summary_url = (
-        f"{toshi_container}/{index_name}/_summary?include_sizes=true"
+        f"{toshi_container}/{lyrics_index.name}/_summary?include_sizes=true"
     )
     res = requests.get(
         get_schema_summary_url, headers={"Content-Type": "application/json"}
@@ -42,10 +41,10 @@ def test_create_index(lyrics_index, toshi_container):
     assert res.json() == unknown_index_response
 
     client = ToshiClient(toshi_container)
-    client.create_index(name=index_name, create_index_payload=lyrics_index)
+    client.create_index(index=lyrics_index)
 
     get_schema_summary_url = (
-        f"{toshi_container}/{index_name}/_summary?include_sizes=true"
+        f"{toshi_container}/{lyrics_index.name}/_summary?include_sizes=true"
     )
     res = requests.get(
         get_schema_summary_url, headers={"Content-Type": "application/json"}
@@ -53,14 +52,14 @@ def test_create_index(lyrics_index, toshi_container):
     assert res.json() != unknown_index_response
 
     with pytest.raises(ToshiIndexError):
-        client.create_index(name=index_name, create_index_payload=lyrics_index)
+        client.create_index(index=lyrics_index)
 
 
 @pytest.mark.integration()
 @pytest.mark.skipif(CI, reason="Integration Test")
 def test_get_index_summary(toshi_container, lyrics_index):
     client = ToshiClient(toshi_container)
-    res = client.get_index_summary(name="lyrics")
+    res = client.get_index_summary(name=lyrics_index.name)
     expected_summary = IndexSummary(
         segments=[],
         opstamp=0,
@@ -75,7 +74,7 @@ def test_get_index_summary(toshi_container, lyrics_index):
 
 @pytest.mark.integration()
 @pytest.mark.skipif(CI, reason="Integration Test")
-def test_list_indexes(toshi_container, lyrics_index):
+def test_list_indexes(toshi_container):
     client = ToshiClient(toshi_container)
     res = client.list_indexes()
 
@@ -118,7 +117,7 @@ def test_add_document(toshi_container):
     client = ToshiClient(toshi_container)
     client.add_document(document=doc)
     time.sleep(0.5)
-    retrieved_doc = client.get_documents(index_name="lyrics", document=Lyrics)
+    retrieved_doc = client.get_documents(index_name=doc.index_name, document=Lyrics)
 
     assert len(retrieved_doc) == 1
     assert doc.to_json() == retrieved_doc[0].to_json()

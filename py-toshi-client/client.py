@@ -12,9 +12,9 @@ class ToshiClient:
     def __init__(self, url: str):
         self._url = url
 
-    def create_index(self, name: str, create_index_payload: Index):
-        create_index_url = f"{self._url}/{name}/_create"
-        resp = requests.put(create_index_url, json=create_index_payload.to_json())
+    def create_index(self, index: Index):
+        create_index_url = f"{self._url}/{index.name}/_create"
+        resp = requests.put(create_index_url, json=index.to_json())
 
         if resp.status_code != 201:
             raise ToshiIndexError(
@@ -34,7 +34,7 @@ class ToshiClient:
                 f"Reason: {resp.json()['message']}"
             )
 
-        return IndexSummary.from_json(resp.json()["summaries"])
+        return IndexSummary.from_json(index_name=name, data=resp.json()["summaries"])
 
     def add_document(self, document: Document):
         index_url = f"{self._url}/{document.index_name}/"
