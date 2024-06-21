@@ -1,3 +1,6 @@
+import time
+from typing import Optional
+
 import pytest
 import requests
 
@@ -6,6 +9,7 @@ from errors import IndexException
 from index_builder import IndexBuilder
 from schemas.document import Document
 from schemas.field_options import TextOptionIndexing
+from schemas.index_summary import IndexSummary, IndexSettings
 from tests.conftest import CI
 
 
@@ -54,21 +58,38 @@ def test_create_index(lyrics_index, toshi_container):
 
 @pytest.mark.integration()
 @pytest.mark.skipif(CI, reason="Integration Test")
-def test_get_index_summary(toshi_container):
+def test_get_index_summary(toshi_container, lyrics_index):
     client = ToshiClient(toshi_container)
     res = client.get_index_summary(name="lyrics")
+    expected_summary = IndexSummary(
+        segments=[],
+        opstamp=0,
+        index_settings=IndexSettings(
+            docstore_blocksize=16384, docstore_compression="lz4"
+        ),
+        index=lyrics_index,
+    )
+
+    assert expected_summary == res
 
 
 @pytest.mark.integration()
 @pytest.mark.skipif(CI, reason="Integration Test")
 def test_add_document(toshi_container):
     class Lyrics(Document):
-        index_name: str = "lyrics"
 
         def __init__(
-            self, lyrics: str, year: int, idx: int, artist: str, genre: str, song: str
+            self,
+            lyrics: str,
+            year: int,
+            idx: int,
+            artist: str,
+            genre: str,
+            song: str,
+            index_name: Optional[str] = "lyrics",
+            options: Optional[dict] = None,
         ):
-            super().__init__(self.index_name)
+            super().__init__(index_name, options)
             self.lyrics = lyrics
             self.year = year
             self.idx = idx
@@ -87,4 +108,9 @@ def test_add_document(toshi_container):
 
     client = ToshiClient(toshi_container)
     client.add_document(document=doc)
-    client.get_documents(index_name="lyrics")
+    client.add_document(document=doc)
+    time.sleep(0.5)
+    retrieved_doc = client.get_documents(index_name="lyrics", document=Lyrics)
+
+    assert len(retrieved_doc) == 1
+    assert doc.to_json() == retrieved_doc[0].to_json()
