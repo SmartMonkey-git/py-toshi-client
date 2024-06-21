@@ -3,12 +3,15 @@ from abc import ABC
 
 class Document(ABC):
 
-    def __init__(self, index_name: str, options=None):
+    def __init__(self, index_name: str, options: Optional[dict] = None):
         self.index_name = index_name
-        self.options = {"commit": False}
+
+        if options is None:
+            options = {"commit": False}
+        self.options = options
 
     def to_json(self) -> dict:
-        raw_data = vars(self)
+        raw_data = copy(vars(self))
         raw_data.pop("index_name")
         options = {"options": raw_data.pop("options")}
         document = {"document": raw_data}
