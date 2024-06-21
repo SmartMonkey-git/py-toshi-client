@@ -55,7 +55,7 @@ class ToshiClient:
 
         if resp.status_code != 200:
             raise IndexException(
-                f"Could not get index summary. Status code: {resp.status_code}. "
+                f"Could not get documents for index {index_name}. Status code: {resp.status_code}. "
                 f"Reason: {resp.json()['message']}"
             )
         data = resp.json()
@@ -63,6 +63,18 @@ class ToshiClient:
         for doc in data["docs"]:
             documents.append(document(**doc["doc"], index_name=index_name))
         return documents
+
+    def list_indexes(self) -> list[str]:
+        list_index_url = f"{self._url}/_list/"
+        resp = requests.get(list_index_url)
+
+        if resp.status_code != 200:
+            raise IndexException(
+                f"Could not list indexes. Status code: {resp.status_code}. "
+                f"Reason: {resp.json()['message']}"
+            )
+
+        return resp.json()
 
 
 class AsyncToshiClient:
