@@ -2,12 +2,19 @@ from dataclasses import dataclass
 
 from enums import IndexTypes
 from index_builder import IndexBuilder
+from schemas.field_options import TextOptionIndexing
 from schemas.index import Index
 
 
 @dataclass
+class IndexSettings:
+    docstore_blocksize: int
+    docstore_compression: str
+
+
+@dataclass
 class IndexSummary:
-    index_settings: dict
+    index_settings: IndexSettings
     segments: list
     opstamp: int
     index: Index
@@ -23,6 +30,7 @@ class IndexSummary:
                 options.pop(
                     "fast"
                 )  # TODO: Is this a bug? TextFields should not have a fast field
+                options["indexing"] = TextOptionIndexing(**options["indexing"])
                 builder.add_text_field(**raw_field, **options)
             elif raw_field["type"] in [
                 IndexTypes.I64,
@@ -37,4 +45,5 @@ class IndexSummary:
                 builder.add_numeric_field(**raw_field, **options)
 
         index = builder.build()
-        return IndexSummary(**data, index=index)
+        settings = IndexSettings(**data.pop("index_settings"))
+        return IndexSummary(**data, index_settings=settings, index=index)
