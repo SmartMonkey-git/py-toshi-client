@@ -5,7 +5,7 @@ import pytest
 import requests
 
 from client import ToshiClient
-from errors import IndexException
+from errors import ToshiIndexError
 from index_builder import IndexBuilder
 from schemas.document import Document
 from schemas.field_options import TextOptionIndexing
@@ -52,7 +52,7 @@ def test_create_index(lyrics_index, toshi_container):
     )
     assert res.json() != unknown_index_response
 
-    with pytest.raises(IndexException):
+    with pytest.raises(ToshiIndexError):
         client.create_index(name=index_name, create_index_payload=lyrics_index)
 
 
