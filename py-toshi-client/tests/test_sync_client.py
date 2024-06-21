@@ -108,7 +108,6 @@ def test_add_document(toshi_container):
 
     client = ToshiClient(toshi_container)
     client.add_document(document=doc)
-    client.add_document(document=doc)
     time.sleep(0.5)
     retrieved_doc = client.get_documents(index_name="lyrics", document=Lyrics)
 
