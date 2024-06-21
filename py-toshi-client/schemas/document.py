@@ -1,4 +1,6 @@
 from abc import ABC
+from copy import copy
+from typing import Optional
 
 
 class Document(ABC):
@@ -19,6 +21,3 @@ class Document(ABC):
         json_data = dict(options)
         json_data.update(document)
         return json_data
-
-    def from_json(self):
-        pass
