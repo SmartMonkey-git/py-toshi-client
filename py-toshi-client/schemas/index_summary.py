@@ -20,7 +20,7 @@ class IndexSummary:
     index: Index
 
     @staticmethod
-    def from_json(data: dict) -> "IndexSummary":
+    def from_json(index_name: str, data: dict) -> "IndexSummary":
         builder = IndexBuilder()
         index_schema = data.pop("schema")
         for raw_field in index_schema:
@@ -44,6 +44,6 @@ class IndexSummary:
                 raw_field["index_type"] = raw_field.pop("type")
                 builder.add_numeric_field(**raw_field, **options)
 
-        index = builder.build()
+        index = builder.build(index_name)
         settings = IndexSettings(**data.pop("index_settings"))
         return IndexSummary(**data, index_settings=settings, index=index)
