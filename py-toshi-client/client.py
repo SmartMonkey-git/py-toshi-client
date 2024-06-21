@@ -2,7 +2,7 @@ from typing import Optional, Type
 
 import requests
 
-from errors import IndexException
+from errors import ToshiIndexError, ToshiDocumentError
 from schemas.document import Document
 from schemas.index import Index
 from schemas.index_summary import IndexSummary
@@ -17,7 +17,7 @@ class ToshiClient:
         resp = requests.put(create_index_url, json=create_index_payload.to_json())
 
         if resp.status_code != 201:
-            raise IndexException(
+            raise ToshiIndexError(
                 f"Creating index failed with status code: {resp.status_code}. "
                 f"Reason: {resp.json()['message']}"
             )
@@ -29,7 +29,7 @@ class ToshiClient:
         resp = requests.get(index_summary_url)
 
         if resp.status_code != 200:
-            raise IndexException(
+            raise ToshiIndexError(
                 f"Could not get index summary. Status code: {resp.status_code}. "
                 f"Reason: {resp.json()['message']}"
             )
@@ -42,7 +42,7 @@ class ToshiClient:
         resp = requests.put(index_url, headers=headers, json=document.to_json())
 
         if resp.status_code != 201:
-            raise IndexException(
+            raise ToshiDocumentError(
                 f"Could not add document for index {document.index_name}. Status code: {resp.status_code}. "
                 f"Reason: {resp.json()['message']}"
             )
@@ -54,7 +54,7 @@ class ToshiClient:
         resp = requests.get(index_url)
 
         if resp.status_code != 200:
-            raise IndexException(
+            raise ToshiDocumentError(
                 f"Could not get documents for index {index_name}. Status code: {resp.status_code}. "
                 f"Reason: {resp.json()['message']}"
             )
@@ -69,7 +69,7 @@ class ToshiClient:
         resp = requests.get(list_index_url)
 
         if resp.status_code != 200:
-            raise IndexException(
+            raise ToshiIndexError(
                 f"Could not list indexes. Status code: {resp.status_code}. "
                 f"Reason: {resp.json()['message']}"
             )
