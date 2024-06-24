@@ -1,23 +1,18 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from copy import copy
-from typing import Optional
 
 
 class Document(ABC):
 
-    def __init__(self, index_name: str, options: Optional[dict] = None):
-        self.index_name = index_name
+    @staticmethod
+    @abstractmethod
+    def index_name() -> str:
+        raise NotImplementedError
 
-        if options is None:
-            options = {"commit": False}
-        self.options = options
-
-    def to_json(self) -> dict:
+    def to_json(self, commit: bool = False) -> dict:
         raw_data = copy(vars(self))
-        raw_data.pop("index_name")
-        options = {"options": raw_data.pop("options")}
-        document = {"document": raw_data}
 
-        json_data = dict(options)
+        json_data = dict({"commit": commit})
+        document = {"document": raw_data}
         json_data.update(document)
         return json_data
