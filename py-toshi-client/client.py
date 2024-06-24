@@ -2,7 +2,7 @@ from typing import Optional, Type
 
 import requests
 
-from errors import ToshiIndexError, ToshiDocumentError
+from errors import ToshiIndexError, ToshiDocumentError, ToshiFlushError
 from schemas.document import Document
 from schemas.index import Index
 from schemas.index_summary import IndexSummary
@@ -10,6 +10,8 @@ from schemas.index_summary import IndexSummary
 
 class ToshiClient:
     def __init__(self, url: str):
+        if url.endswith("/"):
+            url = url[:-1]
         self._url = url
 
     def create_index(self, index: Index):
@@ -75,6 +77,13 @@ class ToshiClient:
             )
 
         return resp.json()
+
+    def flush(self, index_name: str):
+        index_url = f"{self._url}/{index_name}/_flush/"
+        resp = requests.post(index_url)
+
+        if resp.status_code != 200:
+            raise ToshiFlushError(f"Could not flush. Status code: {resp.status_code}. ")
 
 
 class AsyncToshiClient:

@@ -8,3 +8,7 @@ class ToshiIndexError(ToshiError):
 
 class ToshiDocumentError(ToshiError):
     pass
+
+
+class ToshiFlushError(ToshiError):
+    pass
