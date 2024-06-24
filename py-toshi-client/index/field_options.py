@@ -2,12 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 from enums import IndexRecordOption
-
-
-@dataclass
-class Options:
-    stored: bool
-    indexed: Optional[bool] = None
+from models.field_options import Options
 
 
 @dataclass

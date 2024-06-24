@@ -9,6 +9,9 @@ class Document(ABC):
     def index_name() -> str:
         raise NotImplementedError
 
+    def __eq__(self, other):
+        return self.to_json() == other.to_json()
+
     def to_json(self, commit: bool = False) -> dict:
         raw_data = copy(vars(self))
 

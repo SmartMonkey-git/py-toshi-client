@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
 from enums import IndexTypes
-from index_builder import IndexBuilder
-from schemas.field_options import TextOptionIndexing
-from schemas.index import Index
+from index import Index
+from index import IndexBuilder
+from index.field_options import TextOptionIndexing
 
 
 @dataclass

@@ -4,10 +4,10 @@ from typing import Optional, Type, Union
 import requests
 
 from errors import ToshiIndexError, ToshiDocumentError, ToshiFlushError
-from query.model import Query
-from schemas.document import Document
-from schemas.index import Index
-from schemas.index_summary import IndexSummary
+from index.index import Index
+from index.index_summary import IndexSummary
+from models.document import Document
+from models.query import Query
 
 
 class ToshiClient:

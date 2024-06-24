@@ -1,9 +1,9 @@
 import pytest
 
 from enums import IndexTypes, IndexRecordOption
-from index_builder import IndexBuilder
-from schemas.field_options import TextOptions, NumericOptions, TextOptionIndexing
-from schemas.index import IndexField
+from index import IndexBuilder
+from index import IndexField
+from index.field_options import TextOptionIndexing, TextOptions, NumericOptions
 
 
 @pytest.fixture

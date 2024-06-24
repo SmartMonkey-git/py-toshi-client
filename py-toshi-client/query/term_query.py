@@ -1,7 +1,7 @@
 from typing import Optional
 
 from enums import IndexRecordOption
-from query.model import Query
+from models.query import Query
 
 
 class TermQuery(Query):

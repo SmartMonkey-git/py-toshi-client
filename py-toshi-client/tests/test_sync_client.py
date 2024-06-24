@@ -6,11 +6,11 @@ import requests
 from client import ToshiClient
 from enums import IndexRecordOption
 from errors import ToshiIndexError
-from index_builder import IndexBuilder
-from query.term_query import TermQuery
-from schemas.document import Document
-from schemas.field_options import TextOptionIndexing
-from schemas.index_summary import IndexSummary, IndexSettings
+from index import IndexSummary, IndexSettings
+from index.field_options import TextOptionIndexing
+from index.index_builder import IndexBuilder
+from models.document import Document
+from query import TermQuery
 from tests.conftest import CI
 
 
@@ -166,7 +166,9 @@ def test_list_indexes(toshi_container):
 
 @pytest.mark.integration()
 @pytest.mark.skipif(CI, reason="Integration Test")
-def test_search(toshi_container, black_keys_lyrics_document, lyric_documents):
+def test_search_term_query(
+    toshi_container, black_keys_lyrics_document, lyric_documents
+):
     client = ToshiClient(toshi_container)
     query = TermQuery(
         term="ceiling",
@@ -177,7 +179,7 @@ def test_search(toshi_container, black_keys_lyrics_document, lyric_documents):
     documents = client.search(query, Lyrics)
 
     assert len(documents) == 1
-    assert documents[0].__dict__ == black_keys_lyrics_document.__dict__
+    assert documents[0] == black_keys_lyrics_document
 
     query = TermQuery(
         term="the", field_name="lyrics", index_record_option=IndexRecordOption.POSITION
@@ -185,4 +187,4 @@ def test_search(toshi_container, black_keys_lyrics_document, lyric_documents):
 
     documents = client.search(query, Lyrics)
     assert len(documents) == 3
-    assert [d.__dict__ for d in documents] == [d.__dict__ for d in lyric_documents]
+    assert [d for d in documents] == [d for d in lyric_documents]
