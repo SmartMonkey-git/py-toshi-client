@@ -1,16 +1,80 @@
 import time
-from typing import Optional
 
 import pytest
 import requests
 
 from client import ToshiClient
+from enums import IndexRecordOption
 from errors import ToshiIndexError
 from index_builder import IndexBuilder
+from query.term_query import TermQuery
 from schemas.document import Document
 from schemas.field_options import TextOptionIndexing
 from schemas.index_summary import IndexSummary, IndexSettings
 from tests.conftest import CI
+
+
+class Lyrics(Document):
+    @staticmethod
+    def index_name() -> str:
+        return "lyrics"
+
+    def __init__(
+        self, lyrics: str, year: int, idx: int, artist: str, genre: str, song: str
+    ):
+        self.lyrics = lyrics
+        self.year = year
+        self.idx = idx
+        self.artist = artist
+        self.genre = genre
+        self.song = song
+
+
+@pytest.fixture
+def black_keys_lyrics_document():
+    return Lyrics(
+        lyrics="Gold on the ceiling, I ain't blind, just a matter of time",
+        year=2011,
+        idx=2,
+        artist="The Black Keys",
+        genre="Rock",
+        song="Gold on the Ceiling",
+    )
+
+
+@pytest.fixture
+def nirvana_lyrics_document():
+    return Lyrics(
+        lyrics="With the lights out, it's less dangerous, here we are now, entertain us",
+        year=1991,
+        idx=4,
+        artist="Nirvana",
+        genre="Grunge",
+        song="Smells Like Teen Spirit",
+    )
+
+
+@pytest.fixture
+def radiohead_lyrics_document():
+    return Lyrics(
+        lyrics="I'm a creep, I'm a weirdo, what the hell am I doing here?",
+        year=1992,
+        idx=3,
+        artist="Radiohead",
+        genre="Alternative Rock",
+        song="Creep",
+    )
+
+
+@pytest.fixture
+def lyric_documents(
+    black_keys_lyrics_document, nirvana_lyrics_document, radiohead_lyrics_document
+):
+    return [
+        black_keys_lyrics_document,
+        nirvana_lyrics_document,
+        radiohead_lyrics_document,
+    ]
 
 
 @pytest.fixture
@@ -74,6 +138,25 @@ def test_get_index_summary(toshi_container, lyrics_index):
 
 @pytest.mark.integration()
 @pytest.mark.skipif(CI, reason="Integration Test")
+def test_add_document(toshi_container, lyric_documents):
+    client = ToshiClient(toshi_container)
+    for doc in lyric_documents:
+        print(doc)
+        client.add_document(document=doc)
+    time.sleep(0.5)
+    retrieved_doc = client.get_documents(document=Lyrics)
+
+    assert len(retrieved_doc) == 3
+    assert sorted(
+        [doc.to_json() for doc in lyric_documents], key=lambda d: d["document"]["year"]
+    ) == sorted(
+        [r_doc.to_json() for r_doc in retrieved_doc],
+        key=lambda d: d["document"]["year"],
+    )
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
 def test_list_indexes(toshi_container):
     client = ToshiClient(toshi_container)
     res = client.list_indexes()
@@ -83,41 +166,23 @@ def test_list_indexes(toshi_container):
 
 @pytest.mark.integration()
 @pytest.mark.skipif(CI, reason="Integration Test")
-def test_add_document(toshi_container):
-    class Lyrics(Document):
-
-        def __init__(
-            self,
-            lyrics: str,
-            year: int,
-            idx: int,
-            artist: str,
-            genre: str,
-            song: str,
-            index_name: Optional[str] = "lyrics",
-            options: Optional[dict] = None,
-        ):
-            super().__init__(index_name, options)
-            self.lyrics = lyrics
-            self.year = year
-            self.idx = idx
-            self.artist = artist
-            self.genre = genre
-            self.song = song
-
-    doc = Lyrics(
-        lyrics="Here comes the sun, doo-doo-doo-doo",
-        year=1969,
-        idx=1,
-        artist="The Beatles",
-        genre="Rock",
-        song="Here Comes The Sun",
+def test_search(toshi_container, black_keys_lyrics_document, lyric_documents):
+    client = ToshiClient(toshi_container)
+    query = TermQuery(
+        term="ceiling",
+        field_name="lyrics",
+        index_record_option=IndexRecordOption.POSITION,
     )
 
-    client = ToshiClient(toshi_container)
-    client.add_document(document=doc)
-    time.sleep(0.5)
-    retrieved_doc = client.get_documents(index_name=doc.index_name, document=Lyrics)
+    documents = client.search(query, Lyrics)
 
-    assert len(retrieved_doc) == 1
-    assert doc.to_json() == retrieved_doc[0].to_json()
+    assert len(documents) == 1
+    assert documents[0].__dict__ == black_keys_lyrics_document.__dict__
+
+    query = TermQuery(
+        term="the", field_name="lyrics", index_record_option=IndexRecordOption.POSITION
+    )
+
+    documents = client.search(query, Lyrics)
+    assert len(documents) == 3
+    assert [d.__dict__ for d in documents] == [d.__dict__ for d in lyric_documents]
