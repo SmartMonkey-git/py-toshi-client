@@ -18,10 +18,8 @@ class FuzzyQuery(Query):
 
         super().__init__(field_name, limit)
         self._term = term
-        self._field_name = field_name
         self._distance = distance
         self._transposition = transposition
-        self._limit = limit
 
     def to_json(self) -> dict:
         query_json = {

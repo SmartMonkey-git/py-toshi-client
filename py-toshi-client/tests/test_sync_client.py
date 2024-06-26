@@ -13,6 +13,7 @@ from query import TermQuery
 from query.bool_query import BoolQuery, BoolQueryBundle
 from query.fuzzy_query import FuzzyQuery
 from query.range_query import RangeQuery
+from query.regex_query import RegexQuery
 from tests.conftest import CI
 
 
@@ -229,3 +230,17 @@ def test_search_bool_query(toshi_container, black_keys_lyrics_document):
     documents = client.search(query, Lyrics)
     assert len(documents) >= 1
     assert documents[0] == black_keys_lyrics_document
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
+def test_regex_query(toshi_container, lyric_documents):
+    regex = ".*"
+    client = ToshiClient(toshi_container)
+
+    query = RegexQuery(regex=regex, field_name="lyrics")
+    documents = client.search(query, Lyrics)
+
+    assert [d for d in sorted(documents, key=lambda l: l.artist)] == [
+        d for d in sorted(lyric_documents, key=lambda l: l.artist)
+    ]
