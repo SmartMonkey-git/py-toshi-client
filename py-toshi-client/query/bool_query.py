@@ -6,6 +6,8 @@ from models.query import Query
 
 @dataclasses.dataclass
 class BoolQueryBundle:
+    """Helper class to construct a boolean query"""
+
     must: Optional[list[Query]] = dataclasses.field(default_factory=list)
     """Queries that must match"""
     must_not: Optional[list[Query]] = dataclasses.field(default_factory=list)
@@ -36,5 +38,8 @@ class BoolQuery(Query):
 
     def to_json(self):
         query_json = {"query": {"bool": self._bundle.to_json()}}
+
+        if self._limit is not None:
+            query_json.update({"limit": self._limit})
 
         return query_json
