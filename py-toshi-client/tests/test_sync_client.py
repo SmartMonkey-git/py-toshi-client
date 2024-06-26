@@ -11,6 +11,7 @@ from index.field_options import TextOptionIndexing
 from index.index_builder import IndexBuilder
 from models.document import Document
 from query import TermQuery
+from query.range_query import RangeQuery
 from tests.conftest import CI
 
 
@@ -170,20 +171,14 @@ def test_search_term_query(
     toshi_container, black_keys_lyrics_document, lyric_documents
 ):
     client = ToshiClient(toshi_container)
-    query = TermQuery(
-        term="ceiling",
-        field_name="lyrics",
-        index_record_option=IndexRecordOption.POSITION,
-    )
+    query = TermQuery(term="ceiling", field_name="lyrics")
 
     documents = client.search(query, Lyrics)
 
     assert len(documents) == 1
     assert documents[0] == black_keys_lyrics_document
 
-    query = TermQuery(
-        term="the", field_name="lyrics", index_record_option=IndexRecordOption.POSITION
-    )
+    query = TermQuery(term="the", field_name="lyrics")
 
     documents = client.search(query, Lyrics)
     assert len(documents) == 3
