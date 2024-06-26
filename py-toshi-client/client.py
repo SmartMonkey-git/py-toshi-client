@@ -3,7 +3,12 @@ from typing import Optional, Type, Union
 
 import requests
 
-from errors import ToshiIndexError, ToshiDocumentError, ToshiFlushError
+from errors import (
+    ToshiIndexError,
+    ToshiDocumentError,
+    ToshiFlushError,
+    ToshiClientError,
+)
 from index.index import Index
 from index.index_summary import IndexSummary
 from models.document import Document
@@ -51,6 +56,10 @@ class ToshiClient:
                 f"Reason: {resp.json()['message']}"
             )
 
+    def bulk_documents(self):
+        # https://github.com/toshi-search/Toshi/blob/a13a51820bdb025b1c0556a4e49be2e5b97fbeca/toshi-server/src/router.rs#L57
+        raise NotImplementedError
+
     def get_documents(self, document: Type[Document]) -> list[Document]:
         index_url = f"{self._url}/{document.index_name()}/"
         resp = requests.get(index_url)
@@ -79,8 +88,10 @@ class ToshiClient:
         return resp.json()
 
     def flush(self, index_name: str):
+        # Flush uses actually get method not post, as in the examples
+        # https://github.com/toshi-search/Toshi/blob/a13a51820bdb025b1c0556a4e49be2e5b97fbeca/toshi-server/src/router.rs#L56
         index_url = f"{self._url}/{index_name}/_flush/"
-        resp = requests.post(index_url)
+        resp = requests.get(index_url)
 
         if resp.status_code != 200:
             raise ToshiFlushError(f"Could not flush. Status code: {resp.status_code}. ")
@@ -95,8 +106,12 @@ class ToshiClient:
             search_url, headers=headers, data=json.dumps(query.to_json())
         )
 
+        json_data = resp.json()
+        if "message" in json_data:
+            raise ToshiClientError(json_data["message"])
+
         documents = []
-        for raw_doc in resp.json()["docs"]:
+        for raw_doc in json_data["docs"]:
             doc = document_type(**raw_doc["doc"])
             if not return_score:
                 documents.append(doc)
