@@ -15,7 +15,7 @@ class BoolQueryBundle:
     should: Optional[list[Query]] = dataclasses.field(default_factory=list)
     """Queries that should match"""
 
-    def to_json(self):
+    def to_json(self) -> dict:
         json_data = dict()
 
         json_data["must"] = [m.to_json()["query"] for m in self.must]
@@ -36,7 +36,7 @@ class BoolQuery(Query):
         super().__init__(field_name, limit)
         self._bundle = bool_query_bundle
 
-    def to_json(self):
+    def to_json(self) -> dict:
         query_json = {"query": {"bool": self._bundle.to_json()}}
 
         if self._limit is not None:

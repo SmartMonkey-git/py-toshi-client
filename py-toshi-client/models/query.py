@@ -9,5 +9,5 @@ class Query(ABC):
         self._limit = limit
 
     @abstractmethod
-    def to_json(self):
+    def to_json(self) -> dict:
         pass

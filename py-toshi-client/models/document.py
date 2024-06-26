@@ -9,7 +9,7 @@ class Document(ABC):
     def index_name() -> str:
         raise NotImplementedError
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         return self.to_json() == other.to_json()
 
     def to_json(self, commit: bool = False) -> dict:
