@@ -8,8 +8,6 @@ class TermQuery(Query):
     def __init__(self, term: str, field_name: str, limit: Optional[int] = None):
         super().__init__(field_name, limit)
         self._term = term
-        self._field_name = field_name
-        self._limit = limit
 
     def to_json(self) -> dict:
         query_json = {"query": {"term": {self._field_name: self._term}}}
