@@ -43,6 +43,14 @@ class IndexSummary:
                 # can't have type as an input without shadowing the type keyword
                 raw_field["index_type"] = raw_field.pop("type")
                 builder.add_numeric_field(**raw_field, **options)
+            elif raw_field["type"] == IndexTypes.BYTES:
+                raise NotImplementedError
+            elif raw_field["type"] == IndexTypes.DATE:
+                raise NotImplementedError
+            elif raw_field["type"] == IndexTypes.IP:
+                raise NotImplementedError
+            elif raw_field["type"] == IndexTypes.JSON:
+                raise NotImplementedError
 
         index = builder.build(index_name)
         settings = IndexSettings(**data.pop("index_settings"))
