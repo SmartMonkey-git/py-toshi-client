@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from enums import IndexTypes
 from index import Index
 from index import IndexBuilder
+from index.enums import IndexTypes
 from index.field_options import TextOptionIndexing
 
 

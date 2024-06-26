@@ -10,6 +10,7 @@ from index.field_options import TextOptionIndexing
 from index.index_builder import IndexBuilder
 from models.document import Document
 from query import TermQuery
+from query.bool_query import BoolQuery, BoolQueryBundle
 from query.fuzzy_query import FuzzyQuery
 from query.range_query import RangeQuery
 from tests.conftest import CI
@@ -208,4 +209,23 @@ def test_search_range_query(toshi_container):
     query = RangeQuery(gt=gt, lt=lt, field_name="year")
 
     documents = client.search(query, Lyrics)
+    assert len(documents) >= 1
     all(gt < doc.year < lt for doc in documents)
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
+def test_search_bool_query(toshi_container, black_keys_lyrics_document):
+    client = ToshiClient(toshi_container)
+
+    term_query = TermQuery(term="the", field_name="lyrics")
+    gt = 1990
+    lt = 2000
+    range_query = RangeQuery(gt=gt, lt=lt, field_name="year")
+    query = BoolQuery(
+        bool_query_bundle=BoolQueryBundle(must=[term_query], must_not=[range_query])
+    )
+
+    documents = client.search(query, Lyrics)
+    assert len(documents) >= 1
+    assert documents[0] == black_keys_lyrics_document
