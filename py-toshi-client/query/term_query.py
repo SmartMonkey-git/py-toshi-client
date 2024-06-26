@@ -19,6 +19,7 @@ class TermQuery(Query):
         self._limit = limit
 
     def specialized_weight(self, enable_scoring: bool) -> "TermWeight":
+        # implementation: https://github.com/quickwit-oss/tantivy/blob/e4538481341a89001de8082d651ed256ce946fb8/src/query/term_query/term_query.rs#L69
         raise NotImplementedError
 
     def to_json(self) -> dict:
