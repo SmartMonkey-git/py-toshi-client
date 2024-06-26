@@ -10,6 +10,7 @@ from index.field_options import TextOptionIndexing
 from index.index_builder import IndexBuilder
 from models.document import Document
 from query import TermQuery
+from query.fuzzy_query import FuzzyQuery
 from query.range_query import RangeQuery
 from tests.conftest import CI
 
@@ -182,6 +183,20 @@ def test_search_term_query(
     documents = client.search(query, Lyrics)
     assert len(documents) == 3
     assert [d for d in documents] == [d for d in lyric_documents]
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
+def test_search_fuzzy_query(toshi_container, black_keys_lyrics_document):
+    client = ToshiClient(toshi_container)
+    query = FuzzyQuery(
+        term="ceilin", field_name="lyrics", distance=2, transposition=False
+    )
+
+    documents = client.search(query, Lyrics)
+
+    assert len(documents) == 1
+    assert documents[0] == black_keys_lyrics_document
 
 
 @pytest.mark.integration()
