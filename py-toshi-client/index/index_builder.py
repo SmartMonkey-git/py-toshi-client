@@ -119,3 +119,15 @@ class IndexBuilder:
         )
         filed = IndexField(name=name, type=index_type, options=option)
         self._raw_index.append(filed)
+
+    def add_date_field(self):
+        raise NotImplementedError
+
+    def add_bytes_field(self):
+        raise NotImplementedError
+
+    def add_ip_field(self):
+        raise NotImplementedError
+
+    def add_json_field(self):
+        raise NotImplementedError
