@@ -1,21 +1,13 @@
 from typing import Optional
 
-from enums import IndexRecordOption
 from models.query import Query
 
 
 class TermQuery(Query):
 
-    def __init__(
-        self,
-        term: str,
-        field_name: str,
-        index_record_option: IndexRecordOption,
-        limit: Optional[int] = None,
-    ):
+    def __init__(self, term: str, field_name: str, limit: Optional[int] = None):
         self._term = term
         self._field_name = field_name
-        self._index_record_option = index_record_option
         self._limit = limit
 
     def specialized_weight(self, enable_scoring: bool) -> "TermWeight":
