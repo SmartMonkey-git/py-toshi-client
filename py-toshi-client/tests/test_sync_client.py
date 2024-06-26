@@ -4,7 +4,6 @@ import pytest
 import requests
 
 from client import ToshiClient
-from enums import IndexRecordOption
 from errors import ToshiIndexError
 from index import IndexSummary, IndexSettings
 from index.field_options import TextOptionIndexing
@@ -183,3 +182,15 @@ def test_search_term_query(
     documents = client.search(query, Lyrics)
     assert len(documents) == 3
     assert [d for d in documents] == [d for d in lyric_documents]
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
+def test_search_range_query(toshi_container):
+    client = ToshiClient(toshi_container)
+    gt = 1990
+    lt = 2000
+    query = RangeQuery(gt=gt, lt=lt, field_name="year")
+
+    documents = client.search(query, Lyrics)
+    all(gt < doc.year < lt for doc in documents)
