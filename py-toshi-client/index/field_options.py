@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from enums import IndexRecordOption
+from index.enums import IndexRecordOption
 from models.field_options import Options
 
 

@@ -1,7 +1,7 @@
 import dataclasses
 from dataclasses import dataclass
 
-from enums import IndexTypes
+from index.enums import IndexTypes
 from models.field_options import Options
 
 

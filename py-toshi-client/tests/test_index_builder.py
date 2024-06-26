@@ -1,8 +1,8 @@
 import pytest
 
-from enums import IndexTypes, IndexRecordOption
 from index import IndexBuilder
 from index import IndexField
+from index.enums import IndexTypes, IndexRecordOption
 from index.field_options import TextOptionIndexing, TextOptions, NumericOptions
 
 

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from enums import IndexTypes
+from index.enums import IndexTypes
 from index.field_options import TextOptionIndexing, TextOptions, NumericOptions
 from index.index import IndexField, Index
 
