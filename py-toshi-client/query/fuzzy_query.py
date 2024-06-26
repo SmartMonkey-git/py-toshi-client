@@ -16,6 +16,7 @@ class FuzzyQuery(Query):
         if distance > 255 or distance < 0:
             raise ValueError("distance needs to be a u8.")
 
+        super().__init__(field_name, limit)
         self._term = term
         self._field_name = field_name
         self._distance = distance
