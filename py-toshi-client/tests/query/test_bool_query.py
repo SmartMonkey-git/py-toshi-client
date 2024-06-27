@@ -1,5 +1,5 @@
 from query import TermQuery
-from query.bool_query import BoolQuery, BoolQueryBundle
+from query.bool_query import BoolQuery
 from query.range_query import RangeQuery
 
 
@@ -8,8 +8,11 @@ def test_to_json():
     gt = 1990
     lt = 2000
     range_query = RangeQuery(gt=gt, lt=lt, field_name="year")
-    query = BoolQuery(
-        bool_query_bundle=BoolQueryBundle(must=[term_query], must_not=[range_query])
+    query = (
+        BoolQuery()
+        .must_match(term_query)
+        .must_not_match(range_query)
+        .should_match(term_query)
     )
 
     assert query.to_json() == {
@@ -17,7 +20,7 @@ def test_to_json():
             "bool": {
                 "must": [{"term": {"lyrics": "the"}}],
                 "must_not": [{"range": {"year": {"gt": 1990, "lt": 2000}}}],
-                "should": [],
+                "should": [{"term": {"lyrics": "the"}}],
             }
         }
     }
