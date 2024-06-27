@@ -1,19 +1,19 @@
-import pytest
-
 from query.range_query import RangeQuery
 
 
-def test_init():
-    with pytest.raises(ValueError):
-        RangeQuery(gt=1, gte=1, field_name="test")
-    with pytest.raises(ValueError):
-        RangeQuery(lt=1, lte=1, field_name="test")
-    with pytest.raises(ValueError):
-        RangeQuery(gt=1, gte=1, lt=1, lte=1, field_name="test")
+def test_assembly():
+    lt = 1
+    lte = 2
+    gte = 3
+    gt = 4
 
-    query = RangeQuery(gt=1, lte=1, field_name="test")
+    query = RangeQuery(field_name="test")
+    query.lt(lt).gte(gte).gt(gt).lte(lte)
 
-    assert isinstance(query, RangeQuery)
+    assert query._lt == lt
+    assert query._gte == gte
+    assert query._gt == gt
+    assert query._lte == lte
 
 
 def test_to_json():

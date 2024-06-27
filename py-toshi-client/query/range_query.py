@@ -1,5 +1,4 @@
-from operator import xor
-from typing import Optional
+from typing import Optional, Self
 
 from models.query import Query
 
@@ -16,17 +15,26 @@ class RangeQuery(Query):
         limit: Optional[int] = None,
     ):
         super().__init__(field_name, limit)
-        if xor(gt is not None, gte is not None) and xor(
-            lt is not None, lte is not None
-        ):
-            self._gte = gte
-            self._lte = lte
-            self._lt = lt
-            self._gt = gt
-        else:
-            raise ValueError(
-                "RangeQuery only supports either gte or gt and lte or lt, but not setting gte and gt or lte and lt."
-            )
+        self._gte = gte
+        self._lte = lte
+        self._lt = lt
+        self._gt = gt
+
+    def gte(self, val: int) -> Self:
+        self._gte = val
+        return self
+
+    def gt(self, val: int) -> Self:
+        self._gt = val
+        return self
+
+    def lte(self, val: int) -> Self:
+        self._lte = val
+        return self
+
+    def lt(self, val: int) -> Self:
+        self._lt = val
+        return self
 
     def to_json(self) -> dict:
         range_data = {}
