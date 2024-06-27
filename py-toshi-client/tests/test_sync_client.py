@@ -12,6 +12,7 @@ from models.document import Document
 from query import TermQuery
 from query.bool_query import BoolQuery
 from query.fuzzy_query import FuzzyQuery
+from query.phrase_query import PhraseQuery
 from query.range_query import RangeQuery
 from query.regex_query import RegexQuery
 from tests.conftest import CI
@@ -242,3 +243,14 @@ def test_regex_query(toshi_container, lyric_documents):
     assert [d for d in sorted(documents, key=lambda doc: doc.artist)] == [
         d for d in sorted(lyric_documents, key=lambda doc: doc.artist)
     ]
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
+def test_phrase_query(toshi_container, radiohead_lyrics_document):
+    client = ToshiClient(toshi_container)
+
+    query = PhraseQuery(terms=["what", "the", "hell"], field_name="lyrics")
+    documents = client.search(query, Lyrics)
+
+    assert documents[0] == radiohead_lyrics_document
