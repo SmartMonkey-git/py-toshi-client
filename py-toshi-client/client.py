@@ -48,7 +48,9 @@ class ToshiClient:
     def add_document(self, document: Document, commit: Optional[bool] = False):
         index_url = f"{self._url}/{document.index_name()}/"
         headers = {"Content-Type": "application/json"}
-        resp = requests.put(index_url, headers=headers, json=document.to_json(commit))
+        json_data = document.to_json()
+        json_data["commit"] = commit
+        resp = requests.put(index_url, headers=headers, json=json_data)
 
         if resp.status_code != 201:
             raise ToshiDocumentError(
@@ -56,9 +58,23 @@ class ToshiClient:
                 f"Reason: {resp.json()['message']}"
             )
 
-    def bulk_documents(self):
-        # https://github.com/toshi-search/Toshi/blob/a13a51820bdb025b1c0556a4e49be2e5b97fbeca/toshi-server/src/router.rs#L57
-        raise NotImplementedError
+    def bulk_insert_documents(self, documents: list[Document], commit: bool = False):
+        index_name = documents[0].index_name()
+        index_url = f"{self._url}/{index_name}/_bulk"
+
+        body_content = "\n".join(
+            [json.dumps(doc.to_json()["document"]) for doc in documents]
+        )
+        resp = requests.post(index_url, data=body_content)
+
+        if resp.status_code != 201:
+            raise ToshiDocumentError(
+                f"Could not add document for index {index_name}. Status code: {resp.status_code}. "
+                f"Reason: {resp.json()['message']}"
+            )
+
+        if commit:
+            self.flush(index_name)
 
     def get_documents(self, document: Type[Document]) -> list[Document]:
         index_url = f"{self._url}/{document.index_name()}/"
@@ -69,6 +85,7 @@ class ToshiClient:
                 f"Could not get documents for index {document.index_name()}. Status code: {resp.status_code}. "
                 f"Reason: {resp.json()['message']}"
             )
+
         data = resp.json()
         documents = []
         for doc in data["docs"]:
