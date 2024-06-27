@@ -10,7 +10,7 @@ from index.field_options import TextOptionIndexing
 from index.index_builder import IndexBuilder
 from models.document import Document
 from query import TermQuery
-from query.bool_query import BoolQuery, BoolQueryBundle
+from query.bool_query import BoolQuery
 from query.fuzzy_query import FuzzyQuery
 from query.range_query import RangeQuery
 from query.regex_query import RegexQuery
@@ -207,7 +207,7 @@ def test_search_range_query(toshi_container):
     client = ToshiClient(toshi_container)
     gt = 1990
     lt = 2000
-    query = RangeQuery(gt=gt, lt=lt, field_name="year")
+    query = RangeQuery(gt=gt, lt=lt, gte=gt, lte=lt, field_name="year")
 
     documents = client.search(query, Lyrics)
     assert len(documents) >= 1
@@ -223,9 +223,7 @@ def test_search_bool_query(toshi_container, black_keys_lyrics_document):
     gt = 1990
     lt = 2000
     range_query = RangeQuery(gt=gt, lt=lt, field_name="year")
-    query = BoolQuery(
-        bool_query_bundle=BoolQueryBundle(must=[term_query], must_not=[range_query])
-    )
+    query = BoolQuery().must_match(term_query).must_not_match(range_query)
 
     documents = client.search(query, Lyrics)
     assert len(documents) >= 1
@@ -241,6 +239,6 @@ def test_regex_query(toshi_container, lyric_documents):
     query = RegexQuery(regex=regex, field_name="lyrics")
     documents = client.search(query, Lyrics)
 
-    assert [d for d in sorted(documents, key=lambda l: l.artist)] == [
-        d for d in sorted(lyric_documents, key=lambda l: l.artist)
+    assert [d for d in sorted(documents, key=lambda doc: doc.artist)] == [
+        d for d in sorted(lyric_documents, key=lambda doc: doc.artist)
     ]
