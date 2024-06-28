@@ -13,6 +13,4 @@ class Document(ABC):
         return self.to_json() == other.to_json()
 
     def to_json(self) -> dict:
-        raw_data = copy(vars(self))
-        json_data = {"document": raw_data}
-        return json_data
+        return copy(vars(self))

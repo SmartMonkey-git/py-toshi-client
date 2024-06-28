@@ -151,19 +151,13 @@ def test_add_document(toshi_container, lyric_documents):
 
     assert len(retrieved_doc) == 3
     assert sorted(
-        [doc.to_json() for doc in lyric_documents], key=lambda d: d["document"]["year"]
-    ) == sorted(
-        [r_doc.to_json() for r_doc in retrieved_doc],
-        key=lambda d: d["document"]["year"],
-    )
+        [doc.to_json() for doc in lyric_documents], key=lambda d: d["year"]
+    ) == sorted([r_doc.to_json() for r_doc in retrieved_doc], key=lambda d: d["year"])
 
     assert len(retrieved_doc) == 3
     assert sorted(
-        [doc.to_json() for doc in lyric_documents], key=lambda d: d["document"]["year"]
-    ) == sorted(
-        [r_doc.to_json() for r_doc in retrieved_doc],
-        key=lambda d: d["document"]["year"],
-    )
+        [doc.to_json() for doc in lyric_documents], key=lambda d: d["year"]
+    ) == sorted([r_doc.to_json() for r_doc in retrieved_doc], key=lambda d: d["year"])
 
 
 @pytest.mark.integration()
