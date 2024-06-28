@@ -175,16 +175,16 @@ def test_search_term_query(
     toshi_container, black_keys_lyrics_document, lyric_documents
 ):
     client = ToshiClient(toshi_container)
-    query = TermQuery(term="ceiling", field_name="lyrics")
 
+    query = TermQuery(term="ceiling", field_name="lyrics")
     documents = client.search(query, Lyrics)
 
     assert len(documents) == 1
     assert documents[0] == black_keys_lyrics_document
 
     query = TermQuery(term="the", field_name="lyrics")
-
     documents = client.search(query, Lyrics)
+
     assert len(documents) == 3
     assert [d for d in documents] == [d for d in lyric_documents]
 
@@ -294,3 +294,23 @@ def test_bulk_insert_documents(toshi_container):
 
     assert len(retrieved_doc) == 6
     assert all(doc in retrieved_doc for doc in lyric_documents)
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
+def test_delete_index(toshi_container):
+    client = ToshiClient(toshi_container)
+    term_queries = [
+        TermQuery(term="the", field_name="lyrics"),
+        TermQuery(term="Nirvana", field_name="artist"),
+    ]
+
+    get_term_query = TermQuery(term="the", field_name="lyrics")
+    documents = client.search(get_term_query, Lyrics)
+    assert len(documents) == 4
+
+    client.delete_term(term_queries=term_queries, index_name="lyrics", commit=True)
+    time.sleep(0.5)
+
+    documents = client.search(get_term_query, Lyrics)
+    assert len(documents) == 0

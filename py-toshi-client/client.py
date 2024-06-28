@@ -13,6 +13,7 @@ from index.index import Index
 from index.index_summary import IndexSummary
 from models.document import Document
 from models.query import Query
+from query import TermQuery
 
 
 class ToshiClient:
@@ -49,7 +50,7 @@ class ToshiClient:
         index_url = f"{self._url}/{document.index_name()}/"
         headers = {"Content-Type": "application/json"}
 
-        json_data = dict(document=document.to_json(), commit=commit)
+        json_data = dict(document=document.to_json(), options=dict(commit=commit))
         resp = requests.put(index_url, headers=headers, json=json_data)
 
         if resp.status_code != 201:
@@ -89,6 +90,29 @@ class ToshiClient:
         for doc in data["docs"]:
             documents.append(document(**doc["doc"]))
         return documents
+
+    def delete_term(
+        self,
+        term_queries: list[TermQuery],
+        index_name: str,
+        commit: Optional[bool] = False,
+    ) -> int:
+        index_url = f"{self._url}/{index_name}/"
+
+        terms = dict()
+        for tq in term_queries:
+            terms.update(tq.to_json()["query"]["term"])
+
+        body = json.dumps(dict(terms=terms, options=dict(commit=commit)))
+        resp = requests.delete(index_url, data=body)
+
+        if resp.status_code != 200:
+            raise ToshiDocumentError(
+                f"Could not delete documents for index {index_name}. Status code: {resp.status_code}. "
+                f"Reason: {resp.json()['message']}"
+            )
+
+        return resp.json()["docs_affected"]
 
     def list_indexes(self) -> list[str]:
         list_index_url = f"{self._url}/_list/"
