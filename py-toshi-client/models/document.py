@@ -12,10 +12,7 @@ class Document(ABC):
     def __eq__(self, other) -> bool:
         return self.to_json() == other.to_json()
 
-    def to_json(self, commit: bool = False) -> dict:
+    def to_json(self) -> dict:
         raw_data = copy(vars(self))
-
-        json_data = dict({"commit": commit})
-        document = {"document": raw_data}
-        json_data.update(document)
+        json_data = {"document": raw_data}
         return json_data

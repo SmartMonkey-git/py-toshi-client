@@ -145,10 +145,17 @@ def test_get_index_summary(toshi_container, lyrics_index):
 def test_add_document(toshi_container, lyric_documents):
     client = ToshiClient(toshi_container)
     for doc in lyric_documents:
-        print(doc)
         client.add_document(document=doc)
     time.sleep(0.5)
     retrieved_doc = client.get_documents(document=Lyrics)
+
+    assert len(retrieved_doc) == 3
+    assert sorted(
+        [doc.to_json() for doc in lyric_documents], key=lambda d: d["document"]["year"]
+    ) == sorted(
+        [r_doc.to_json() for r_doc in retrieved_doc],
+        key=lambda d: d["document"]["year"],
+    )
 
     assert len(retrieved_doc) == 3
     assert sorted(
@@ -165,7 +172,7 @@ def test_list_indexes(toshi_container):
     client = ToshiClient(toshi_container)
     res = client.list_indexes()
 
-    assert ["lyrics"] == res
+    assert res == ["lyrics"]
 
 
 @pytest.mark.integration()
@@ -254,3 +261,42 @@ def test_phrase_query(toshi_container, radiohead_lyrics_document):
     documents = client.search(query, Lyrics)
 
     assert documents[0] == radiohead_lyrics_document
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
+def test_bulk_insert_documents(toshi_container):
+    lyric_documents = [
+        Lyrics(
+            lyrics="There's a lady who's sure all that glitters is gold, and she's buying a stairway to heaven",
+            year=1971,
+            idx=10,
+            artist="Led Zeppelin",
+            genre="Rock",
+            song="Stairway to Heaven",
+        ),
+        Lyrics(
+            lyrics="Is this the real life? Is this just fantasy? Caught in a landslide, no escape from reality",
+            year=1975,
+            idx=11,
+            artist="Queen",
+            genre="Rock",
+            song="Bohemian Rhapsody",
+        ),
+        Lyrics(
+            lyrics="We don't need no education, we don't need no thought control",
+            year=1979,
+            idx=12,
+            artist="Pink Floyd",
+            genre="Progressive Rock",
+            song="Another Brick in the Wall",
+        ),
+    ]
+
+    client = ToshiClient(toshi_container)
+    client.bulk_insert_documents(documents=lyric_documents, commit=True)
+    time.sleep(0.5)
+    retrieved_doc = client.get_documents(document=Lyrics)
+
+    assert len(retrieved_doc) == 6
+    assert all(doc in retrieved_doc for doc in lyric_documents)
