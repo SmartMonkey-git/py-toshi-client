@@ -1,7 +1,12 @@
 from typing import Optional
 
 from index.enums import IndexTypes
-from index.field_options import TextOptionIndexing, TextOptions, NumericOptions
+from index.field_options import (
+    TextOptionIndexing,
+    TextOptions,
+    NumericOptions,
+    FacetOptions,
+)
 from index.index import IndexField, Index
 
 
@@ -120,14 +125,8 @@ class IndexBuilder:
         filed = IndexField(name=name, type=index_type, options=option)
         self._raw_index.append(filed)
 
-    def add_date_field(self):
-        raise NotImplementedError
-
-    def add_bytes_field(self):
-        raise NotImplementedError
-
-    def add_ip_field(self):
-        raise NotImplementedError
-
-    def add_json_field(self):
-        raise NotImplementedError
+    def add_facet_field(self, name: str, stored: bool):
+        filed = IndexField(
+            name=name, type=IndexTypes.FACET, options=FacetOptions(stored=stored)
+        )
+        self._raw_index.append(filed)

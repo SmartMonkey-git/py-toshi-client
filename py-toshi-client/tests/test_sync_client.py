@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 
 import pytest
 import requests
@@ -11,6 +12,7 @@ from index.index_builder import IndexBuilder
 from models.document import Document
 from query import TermQuery
 from query.bool_query import BoolQuery
+from query.facet_query import FacetQuery
 from query.fuzzy_query import FuzzyQuery
 from query.phrase_query import PhraseQuery
 from query.range_query import RangeQuery
@@ -24,7 +26,14 @@ class Lyrics(Document):
         return "lyrics"
 
     def __init__(
-        self, lyrics: str, year: int, idx: int, artist: str, genre: str, song: str
+        self,
+        lyrics: str,
+        year: int,
+        idx: int,
+        artist: str,
+        genre: str,
+        song: str,
+        test_facet: str,
     ):
         self.lyrics = lyrics
         self.year = year
@@ -32,6 +41,7 @@ class Lyrics(Document):
         self.artist = artist
         self.genre = genre
         self.song = song
+        self.test_facet = test_facet
 
 
 @pytest.fixture
@@ -43,6 +53,7 @@ def black_keys_lyrics_document():
         artist="The Black Keys",
         genre="Rock",
         song="Gold on the Ceiling",
+        test_facet="/a/b",
     )
 
 
@@ -55,6 +66,7 @@ def nirvana_lyrics_document():
         artist="Nirvana",
         genre="Grunge",
         song="Smells Like Teen Spirit",
+        test_facet="/a/b",
     )
 
 
@@ -67,6 +79,7 @@ def radiohead_lyrics_document():
         artist="Radiohead",
         genre="Alternative Rock",
         song="Creep",
+        test_facet="/a/b",
     )
 
 
@@ -91,6 +104,7 @@ def lyrics_index():
     builder.add_text_field(name="artist", stored=True, indexing=TextOptionIndexing())
     builder.add_text_field(name="genre", stored=True, indexing=TextOptionIndexing())
     builder.add_text_field(name="song", stored=True, indexing=TextOptionIndexing())
+    builder.add_facet_field(name="test_facet", stored=True)
 
     return builder.build("lyrics")
 
@@ -268,6 +282,7 @@ def test_bulk_insert_documents(toshi_container):
             artist="Led Zeppelin",
             genre="Rock",
             song="Stairway to Heaven",
+            test_facet="/a/b",
         ),
         Lyrics(
             lyrics="Is this the real life? Is this just fantasy? Caught in a landslide, no escape from reality",
@@ -276,6 +291,7 @@ def test_bulk_insert_documents(toshi_container):
             artist="Queen",
             genre="Rock",
             song="Bohemian Rhapsody",
+            test_facet="/a/b",
         ),
         Lyrics(
             lyrics="We don't need no education, we don't need no thought control",
@@ -284,6 +300,7 @@ def test_bulk_insert_documents(toshi_container):
             artist="Pink Floyd",
             genre="Progressive Rock",
             song="Another Brick in the Wall",
+            test_facet="/t/x",
         ),
     ]
 
@@ -294,6 +311,20 @@ def test_bulk_insert_documents(toshi_container):
 
     assert len(retrieved_doc) == 6
     assert all(doc in retrieved_doc for doc in lyric_documents)
+
+
+@pytest.mark.integration()
+@pytest.mark.skipif(CI, reason="Integration Test")
+def test_search_facet_query(
+    toshi_container, black_keys_lyrics_document, lyric_documents
+):
+    client = ToshiClient(toshi_container)
+
+    query = TermQuery(term="the", field_name="lyrics")
+    facet_queries = [FacetQuery("test_facet", [Path("/t")])]
+    documents = client.search(query, Lyrics, facet_query=facet_queries)
+
+    assert len(documents) == 4
 
 
 @pytest.mark.integration()

@@ -24,33 +24,31 @@ class IndexSummary:
         builder = IndexBuilder()
         index_schema = data.pop("schema")
         for raw_field in index_schema:
-            if raw_field["type"] == IndexTypes.TEXT:
-                raw_field.pop("type")
+            # can't have type as an input without shadowing the type keyword
+            raw_field["index_type"] = raw_field.pop("type")
+
+            if raw_field["index_type"] == IndexTypes.TEXT:
                 options = raw_field.pop("options")
                 options.pop(
                     "fast"
                 )  # TODO: Is this a bug? TextFields should not have a fast field
                 options["indexing"] = TextOptionIndexing(**options["indexing"])
+                raw_field.pop("index_type")
+
                 builder.add_text_field(**raw_field, **options)
-            elif raw_field["type"] in [
+            elif raw_field["index_type"] in [
                 IndexTypes.I64,
                 IndexTypes.U64,
                 IndexTypes.F64,
                 IndexTypes.BOOL,
             ]:
                 options = raw_field.pop("options")
-
-                # can't have type as an input without shadowing the type keyword
-                raw_field["index_type"] = raw_field.pop("type")
                 builder.add_numeric_field(**raw_field, **options)
-            elif raw_field["type"] == IndexTypes.BYTES:
-                raise NotImplementedError
-            elif raw_field["type"] == IndexTypes.DATE:
-                raise NotImplementedError
-            elif raw_field["type"] == IndexTypes.IP:
-                raise NotImplementedError
-            elif raw_field["type"] == IndexTypes.JSON:
-                raise NotImplementedError
+            elif raw_field["index_type"] == IndexTypes.FACET:
+                options = raw_field.pop("options")
+                raw_field.pop("index_type")
+                builder.add_facet_field(**raw_field, **options)
+                pass
 
         index = builder.build(index_name)
         settings = IndexSettings(**data.pop("index_settings"))
