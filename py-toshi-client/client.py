@@ -48,8 +48,8 @@ class ToshiClient:
     def add_document(self, document: Document, commit: Optional[bool] = False):
         index_url = f"{self._url}/{document.index_name()}/"
         headers = {"Content-Type": "application/json"}
-        json_data = document.to_json()
-        json_data["commit"] = commit
+
+        json_data = dict(document=document.to_json(), commit=commit)
         resp = requests.put(index_url, headers=headers, json=json_data)
 
         if resp.status_code != 201:
@@ -62,9 +62,7 @@ class ToshiClient:
         index_name = documents[0].index_name()
         index_url = f"{self._url}/{index_name}/_bulk"
 
-        body_content = "\n".join(
-            [json.dumps(doc.to_json()["document"]) for doc in documents]
-        )
+        body_content = "\n".join([json.dumps(doc.to_json()) for doc in documents])
         resp = requests.post(index_url, data=body_content)
 
         if resp.status_code != 201:
