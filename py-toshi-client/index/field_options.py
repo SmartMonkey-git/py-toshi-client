@@ -41,3 +41,7 @@ class DateOptions(Options):
     fast: Optional[bool] = False
     precision: Optional[str] = "seconds"
     """Precision of the date can be seconds, milliseconds, microseconds, nanoseconds"""
+
+
+class FacetOptions(Options):
+    pass

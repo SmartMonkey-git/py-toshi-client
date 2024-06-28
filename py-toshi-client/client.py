@@ -1,4 +1,5 @@
 import json
+from collections import ChainMap
 from typing import Optional, Type, Union
 
 import requests
@@ -14,6 +15,7 @@ from index.index_summary import IndexSummary
 from models.document import Document
 from models.query import Query
 from query import TermQuery
+from query.facet_query import FacetQuery
 
 
 class ToshiClient:
@@ -136,14 +138,20 @@ class ToshiClient:
             raise ToshiFlushError(f"Could not flush. Status code: {resp.status_code}. ")
 
     def search(
-        self, query: Query, document_type: Type[Document], return_score: bool = False
+        self,
+        query: Query,
+        document_type: Type[Document],
+        facet_query: list[FacetQuery] = None,
+        return_score: bool = False,
     ) -> list[Union[Document, dict[Document, float]]]:
         search_url = f"{self._url}/{document_type.index_name()}/"
         headers = {"Content-Type": "application/json"}
 
-        resp = requests.post(
-            search_url, headers=headers, data=json.dumps(query.to_json())
-        )
+        json_data = query.to_json()
+        if facet_query is not None:
+            json_data["facets"] = dict(ChainMap(*[f.to_json() for f in facet_query]))
+
+        resp = requests.post(search_url, headers=headers, data=json.dumps(json_data))
 
         json_data = resp.json()
         if "message" in json_data:
