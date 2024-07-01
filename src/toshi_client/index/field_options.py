@@ -7,7 +7,6 @@ from toshi_client.models.field_options import Options
 
 @dataclass
 class NumericOptions(Options):
-    # fast: Optional[bool] = False
     fieldnorms: Optional[bool] = True
     """This attribute only has an effect if indexed is true."""
     coerce: Optional[bool] = False

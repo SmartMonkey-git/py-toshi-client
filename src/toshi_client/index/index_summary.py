@@ -29,9 +29,7 @@ class IndexSummary:
 
             if raw_field["index_type"] == IndexFieldTypes.TEXT:
                 options = raw_field.pop("options")
-                options.pop(
-                    "fast"
-                )  # TODO: Is this a bug? TextFields should not have a fast field
+                options.pop("fast")
                 options["indexing"] = TextOptionIndexing(**options["indexing"])
                 raw_field.pop("index_type")
 
