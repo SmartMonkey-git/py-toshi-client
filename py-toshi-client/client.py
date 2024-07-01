@@ -2,6 +2,7 @@ import json
 from collections import ChainMap
 from typing import Optional, Type, Union
 
+import aiohttp
 import requests
 
 from errors import (
@@ -170,4 +171,162 @@ class ToshiClient:
 
 
 class AsyncToshiClient:
-    pass
+    def __init__(self, url: str):
+        if url.endswith("/"):
+            url = url[:-1]
+        self._url = url
+
+    async def create_index(self, index: Index):
+        create_index_url = f"{self._url}/{index.name}/_create"
+        async with aiohttp.ClientSession() as session:
+            async with session.put(create_index_url, json=index.to_json()) as resp:
+                if resp.status != 201:
+                    error_message = json.loads(await resp.read())
+                    raise ToshiIndexError(
+                        f"Creating index failed with status code: {resp.status}. "
+                        f"Reason: {error_message['message']}"
+                    )
+
+    async def get_index_summary(
+        self, name: str, include_size: Optional[bool] = True
+    ) -> IndexSummary:
+        index_summary_url = f"{self._url}/{name}/_summary?include_sizes={include_size}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(index_summary_url) as resp:
+                if resp.status != 200:
+                    error_message = await resp.json()
+                    raise ToshiIndexError(
+                        f"Could not get index summary. Status code: {resp.status}. "
+                        f"Reason: {error_message['message']}"
+                    )
+                data = await resp.json()
+                return IndexSummary.from_json(index_name=name, data=data["summaries"])
+
+    async def add_document(self, document: Document, commit: Optional[bool] = False):
+        index_url = f"{self._url}/{document.index_name()}/"
+        headers = {"Content-Type": "application/json"}
+
+        json_data = dict(document=document.to_json(), options=dict(commit=commit))
+        async with aiohttp.ClientSession() as session:
+            async with session.put(index_url, headers=headers, json=json_data) as resp:
+                if resp.status != 201:
+                    error_message = await resp.json()
+                    raise ToshiDocumentError(
+                        f"Could not add document for index {document.index_name()}. Status code: {resp.status}. "
+                        f"Reason: {error_message['message']}"
+                    )
+
+    async def bulk_insert_documents(
+        self, documents: list[Document], commit: bool = False
+    ):
+        index_name = documents[0].index_name()
+        index_url = f"{self._url}/{index_name}/_bulk"
+
+        body_content = "\n".join([json.dumps(doc.to_json()) for doc in documents])
+        async with aiohttp.ClientSession() as session:
+            async with session.post(index_url, data=body_content) as resp:
+                if resp.status != 201:
+                    error_message = await resp.json()
+                    raise ToshiDocumentError(
+                        f"Could not add document for index {index_name}. Status code: {resp.status}. "
+                        f"Reason: {error_message['message']}"
+                    )
+
+                if commit:
+                    await self.flush(index_name)
+
+    async def get_documents(self, document: Type[Document]) -> list[Document]:
+        index_url = f"{self._url}/{document.index_name()}/"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(index_url) as resp:
+                if resp.status != 200:
+                    error_message = await resp.json()
+                    raise ToshiDocumentError(
+                        f"Could not get documents for index {document.index_name()}. Status code: {resp.status}. "
+                        f"Reason: {error_message['message']}"
+                    )
+                data = await resp.json()
+                documents = []
+                for doc in data["docs"]:
+                    documents.append(document(**doc["doc"]))
+                return documents
+
+    async def delete_term(
+        self,
+        term_queries: list[TermQuery],
+        index_name: str,
+        commit: Optional[bool] = False,
+    ) -> int:
+        index_url = f"{self._url}/{index_name}/"
+
+        terms = dict()
+        for tq in term_queries:
+            terms.update(tq.to_json()["query"]["term"])
+
+        body = json.dumps(dict(terms=terms, options=dict(commit=commit)))
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(index_url, data=body) as resp:
+                if resp.status != 200:
+                    error_message = await resp.json()
+                    raise ToshiDocumentError(
+                        f"Could not delete documents for index {index_name}. Status code: {resp.status}. "
+                        f"Reason: {error_message['message']}"
+                    )
+
+                data = await resp.json()
+                return data["docs_affected"]
+
+    async def list_indexes(self) -> list[str]:
+        list_index_url = f"{self._url}/_list/"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(list_index_url) as resp:
+                if resp.status != 200:
+                    error_message = await resp.json()
+                    raise ToshiIndexError(
+                        f"Could not list indexes. Status code: {resp.status}. "
+                        f"Reason: {error_message['message']}"
+                    )
+
+                return await resp.json()
+
+    async def flush(self, index_name: str):
+        index_url = f"{self._url}/{index_name}/_flush/"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(index_url) as resp:
+                if resp.status != 200:
+                    raise ToshiFlushError(
+                        f"Could not flush. Status code: {resp.status}. "
+                    )
+
+    async def search(
+        self,
+        query: Query,
+        document_type: Type[Document],
+        facet_query: Optional[list[FacetQuery]] = None,
+        return_score: bool = False,
+    ) -> list[Union[Document, dict]]:
+        search_url = f"{self._url}/{document_type.index_name()}/"
+        headers = {"Content-Type": "application/json"}
+
+        json_data = query.to_json()
+        if facet_query is not None:
+            json_data["facets"] = dict(ChainMap(*[f.to_json() for f in facet_query]))
+
+        async with aiohttp.ClientSession() as session:
+            async with session.post(
+                search_url, headers=headers, data=json.dumps(json_data)
+            ) as resp:
+                json_data = await resp.json()
+                if "message" in json_data:
+                    raise ToshiClientError(json_data["message"])
+
+                documents = []
+                for raw_doc in json_data["docs"]:
+                    doc = document_type(**raw_doc["doc"])
+                    if not return_score:
+                        documents.append(doc)
+                    else:
+                        raw_doc["doc"] = doc
+                        documents.append(raw_doc)
+
+                return documents
