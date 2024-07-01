@@ -1,6 +1,6 @@
 [project]
 name = "toshi_client"
-version = "0.0.2"
+version = "0.0.1"
 authors = [
   { name="Rouven Reuter", email="rouven.reuter91@gmail.com" },
 ]

@@ -2,7 +2,7 @@
 This repository is a client for the [Full-Text Search Engine Toshi](https://github.com/toshi-search/Toshi). It allows you to use all features implemented in the Toshi engine.
 
 ### How to install
-The client is available as a package on Pypi and can be installed via:
+The client is available as a package on [Pypi](https://pypi.org/project/toshi-client/) and can be installed via:
 ```shell
 pip install toshi_client
 ```
