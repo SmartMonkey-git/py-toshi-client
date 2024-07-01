@@ -2,10 +2,10 @@
 This repository is a client for the [Full-Text Search Engine Toshi](https://github.com/toshi-search/Toshi). It allows you to use all features implemented in the Toshi engine.
 
 ### How to install
-The client is available as a package on Pypi and can be installed vai:
-``
+The client is available as a package on Pypi and can be installed via:
+```shell
 pip install toshi_client
-``
+```
 
 ### Examples
 For a full set of examples check out the [integration tests](https://github.com/SmartMonkey-git/py-toshi-client/blob/main/tests/test_integration_sync.py).
