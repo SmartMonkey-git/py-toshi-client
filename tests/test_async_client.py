@@ -1,11 +1,11 @@
 import pytest
 from aioresponses import aioresponses
 
-from client import AsyncToshiClient
-from errors import ToshiIndexError
-from index import IndexSummary
-from query import TermQuery
 from tests.conftest import Lyrics
+from toshi_client.client import AsyncToshiClient
+from toshi_client.errors import ToshiIndexError
+from toshi_client.index.index_summary import IndexSummary
+from toshi_client.query.term_query import TermQuery
 
 
 @pytest.fixture

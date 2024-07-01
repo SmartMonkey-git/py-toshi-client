@@ -1,14 +1,14 @@
 import dataclasses
 from dataclasses import dataclass
 
-from index.enums import IndexTypes
-from models.field_options import Options
+from toshi_client.index.enums import IndexFieldTypes
+from toshi_client.models.field_options import Options
 
 
 @dataclass
 class IndexField:
     name: str
-    type: IndexTypes
+    type: IndexFieldTypes
     options: Options
 
 

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from models.query import Query
+from toshi_client.models.query import Query
 
 
 class FacetQuery(Query):

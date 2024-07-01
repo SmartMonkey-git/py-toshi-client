@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class IndexTypes(str, Enum):
+class IndexFieldTypes(str, Enum):
     TEXT = "text"
     U64 = "u64"
     I64 = "i64"

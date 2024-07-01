@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 
-from index import Index
-from index import IndexBuilder
-from index.enums import IndexTypes
-from index.field_options import TextOptionIndexing
+from toshi_client.index.enums import IndexFieldTypes
+from toshi_client.index.field_options import TextOptionIndexing
+from toshi_client.index.index import Index
+from toshi_client.index.index_builder import IndexBuilder
 
 
 @dataclass
@@ -27,7 +27,7 @@ class IndexSummary:
             # can't have type as an input without shadowing the type keyword
             raw_field["index_type"] = raw_field.pop("type")
 
-            if raw_field["index_type"] == IndexTypes.TEXT:
+            if raw_field["index_type"] == IndexFieldTypes.TEXT:
                 options = raw_field.pop("options")
                 options.pop(
                     "fast"
@@ -37,14 +37,14 @@ class IndexSummary:
 
                 builder.add_text_field(**raw_field, **options)
             elif raw_field["index_type"] in [
-                IndexTypes.I64,
-                IndexTypes.U64,
-                IndexTypes.F64,
-                IndexTypes.BOOL,
+                IndexFieldTypes.I64,
+                IndexFieldTypes.U64,
+                IndexFieldTypes.F64,
+                IndexFieldTypes.BOOL,
             ]:
                 options = raw_field.pop("options")
                 builder.add_numeric_field(**raw_field, **options)
-            elif raw_field["index_type"] == IndexTypes.FACET:
+            elif raw_field["index_type"] == IndexFieldTypes.FACET:
                 options = raw_field.pop("options")
                 raw_field.pop("index_type")
                 builder.add_facet_field(**raw_field, **options)

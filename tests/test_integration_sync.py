@@ -4,17 +4,17 @@ from pathlib import Path
 import pytest
 import requests
 
-from client import ToshiClient
-from errors import ToshiIndexError
-from index import IndexSummary, IndexSettings
-from query import TermQuery
-from query.bool_query import BoolQuery
-from query.facet_query import FacetQuery
-from query.fuzzy_query import FuzzyQuery
-from query.phrase_query import PhraseQuery
-from query.range_query import RangeQuery
-from query.regex_query import RegexQuery
 from tests.conftest import CI, Lyrics
+from toshi_client.client import ToshiClient
+from toshi_client.errors import ToshiIndexError
+from toshi_client.index.index_summary import IndexSummary, IndexSettings
+from toshi_client.query.bool_query import BoolQuery
+from toshi_client.query.facet_query import FacetQuery
+from toshi_client.query.fuzzy_query import FuzzyQuery
+from toshi_client.query.phrase_query import PhraseQuery
+from toshi_client.query.range_query import RangeQuery
+from toshi_client.query.regex_query import RegexQuery
+from toshi_client.query.term_query import TermQuery
 
 
 @pytest.mark.integration()

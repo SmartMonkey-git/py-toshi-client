@@ -1,6 +1,6 @@
 from typing import Optional
 
-from models.query import Query
+from toshi_client.models.query import Query
 
 
 class TermQuery(Query):

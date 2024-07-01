@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from index.enums import IndexRecordOption
-from models.field_options import Options
+from toshi_client.index.enums import IndexRecordOption
+from toshi_client.models.field_options import Options
 
 
 @dataclass

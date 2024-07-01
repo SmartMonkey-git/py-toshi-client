@@ -1,13 +1,13 @@
 from typing import Optional
 
-from index.enums import IndexTypes
-from index.field_options import (
-    TextOptionIndexing,
+from toshi_client.index.enums import IndexFieldTypes
+from toshi_client.index.field_options import (
     TextOptions,
     NumericOptions,
     FacetOptions,
+    TextOptionIndexing,
 )
-from index.index import IndexField, Index
+from toshi_client.index.index import Index, IndexField
 
 
 class IndexBuilder:
@@ -46,7 +46,7 @@ class IndexBuilder:
         option = TextOptions(
             stored=stored, indexed=indexed, indexing=indexing, coerce=coerce
         )
-        filed = IndexField(name=name, type=IndexTypes.TEXT, options=option)
+        filed = IndexField(name=name, type=IndexFieldTypes.TEXT, options=option)
         self._raw_index.append(filed)
 
     def add_u64_field(
@@ -60,7 +60,7 @@ class IndexBuilder:
     ):
         """"""
         self.add_numeric_field(
-            name, stored, IndexTypes.U64, indexed, fast, fieldnorms, coerce
+            name, stored, IndexFieldTypes.U64, indexed, fast, fieldnorms, coerce
         )
 
     def add_i64_field(
@@ -74,7 +74,7 @@ class IndexBuilder:
     ):
         """"""
         self.add_numeric_field(
-            name, stored, IndexTypes.I64, indexed, fast, fieldnorms, coerce
+            name, stored, IndexFieldTypes.I64, indexed, fast, fieldnorms, coerce
         )
 
     def add_f64_filed(
@@ -88,7 +88,7 @@ class IndexBuilder:
     ):
         """"""
         self.add_numeric_field(
-            name, stored, IndexTypes.F64, indexed, fast, fieldnorms, coerce
+            name, stored, IndexFieldTypes.F64, indexed, fast, fieldnorms, coerce
         )
 
     def add_bool_filed(
@@ -102,14 +102,14 @@ class IndexBuilder:
     ):
         """"""
         self.add_numeric_field(
-            name, stored, IndexTypes.BOOL, indexed, fast, fieldnorms, coerce
+            name, stored, IndexFieldTypes.BOOL, indexed, fast, fieldnorms, coerce
         )
 
     def add_numeric_field(
         self,
         name: str,
         stored: bool,
-        index_type: IndexTypes,
+        index_type: IndexFieldTypes,
         indexed: Optional[bool] = None,
         fast: Optional[bool] = False,
         fieldnorms: Optional[bool] = True,
@@ -127,6 +127,6 @@ class IndexBuilder:
 
     def add_facet_field(self, name: str, stored: bool):
         filed = IndexField(
-            name=name, type=IndexTypes.FACET, options=FacetOptions(stored=stored)
+            name=name, type=IndexFieldTypes.FACET, options=FacetOptions(stored=stored)
         )
         self._raw_index.append(filed)
