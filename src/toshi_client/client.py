@@ -342,6 +342,7 @@ class AsyncToshiClient:
         The base URL of the Toshi search server.
 
     """
+
     def __init__(self, url: str):
         if url.endswith("/"):
             url = url[:-1]
