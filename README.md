@@ -71,7 +71,6 @@ doc = Lyrics(
     artist="The Black Keys",
     genre="Rock",
     song="Gold on the Ceiling",
-    test_facet="/a/b",
 )
 client.add_document(document=doc)
 ```
