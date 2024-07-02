@@ -4,7 +4,7 @@ This repository is a client for the [Full-Text Search Engine Toshi](https://gith
 ### How to install
 The client is available as a package on [Pypi](https://pypi.org/project/toshi-client/) and can be installed via:
 ```shell
-pip install toshi_client
+pip install toshi-client
 ```
 
 ### Examples
